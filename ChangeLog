@@ -1,3 +1,13 @@
+2014-02-20 Juan J. Martinez <juan@memset.com>
+
+ * 0.25.3
+  This is a small bug-fix release:
+  - Added "requests" library support with python-swiftclient >= 2.0.2.
+    Thanks to Chmouel Boudjnah for the patch!
+  - Fixed a small issue with directory listings and swift 1.9.1, thanks
+    to Pedro Perez for the patch!
+  - Copyright year bump
+
 2013-12-01 Juan J. Martinez <juan@memset.com>
 
  * 0.25.1, 0.25.2
