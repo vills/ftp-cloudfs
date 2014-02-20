@@ -3,7 +3,7 @@ FTP Interface to OpenStack Object Storage (Swift)
 =================================================
 
 :Homepage:  https://pypi.python.org/pypi/ftp-cloudfs/
-:Credits:   Copyright 2009--2013 Chmouel Boudjnah <chmouel@chmouel.com>
+:Credits:   Copyright 2009--2014 Chmouel Boudjnah <chmouel@chmouel.com>
 :Licence:   MIT
 
 
@@ -177,7 +177,7 @@ exceptions contain licensing information in them.
 
 .. _`MIT`: http://en.wikipedia.org/wiki/MIT_License
 
-  Copyright (C) 2009-2013 Chmouel Boudjnah <chmouel@chmouel.com>
+  Copyright (C) 2009-2014 Chmouel Boudjnah <chmouel@chmouel.com>
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
