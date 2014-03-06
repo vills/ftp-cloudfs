@@ -37,7 +37,8 @@ class FtpObjectStorageFSTest(unittest.TestCase):
         self.container = "ftpcloudfs_testing"
         self.cnx.mkd("/%s" % self.container)
         self.cnx.cwd("/%s" % self.container)
-        self.conn = client.Connection(user=self.username, key=self.api_key, authurl=self.auth_url)
+        auth_version = '2.0' if 'OS_KEYSTONE_REGION_NAME' in os.environ else '1'
+        self.conn = client.Connection(user=self.username, key=self.api_key, authurl=self.auth_url, auth_version=auth_version)
 
     def create_file(self, path, contents):
         '''Create path with contents'''

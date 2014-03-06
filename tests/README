@@ -6,5 +6,12 @@ Set these environment variables before running the tests
   export OS_API_KEY='key'
   export OS_AUTH_URL='https://url.of.auth.server/v1.0'
 
+If you need keystone for auth set this variables
+
+  export OS_KEYSTONE_REGION_NAME='RegionName'
+  export OS_KEYSTONE_TENANT_SEPARATOR=':' (optional, default ":")
+  export OS_KEYSTONE_SERVICE_TYPE='object-store' (optional, default "object-store")
+  export OS_KEYSTONE_ENDPOINT_TYPE='publicURL' (optional, default "publicURL")
+
 Once your test env is correct, all tests must pass!
 

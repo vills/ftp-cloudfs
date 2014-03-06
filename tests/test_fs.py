@@ -23,11 +23,20 @@ class ObjectStorageFSTest(unittest.TestCase):
                         ]):
                 print "env OS_API_USER/OS_API_KEY/OS_AUTH_URL not found."
                 sys.exit(1)
-            cls.username = os.environ['OS_API_USER']
-            cls.api_key = os.environ['OS_API_KEY']
+            cls.username = os.environ.get('OS_API_USER')
+            cls.api_key  = os.environ.get('OS_API_KEY')
             cls.auth_url = os.environ.get('OS_AUTH_URL')
-            cls.cnx = ObjectStorageFS(self.username, self.api_key, self.auth_url)
-            cls.conn = client.Connection(user=self.username, key=self.api_key, authurl=self.auth_url)
+            if 'OS_KEYSTONE_REGION_NAME' in os.environ:
+                keystone = {'region_name'      : os.environ.get('OS_KEYSTONE_REGION_NAME'),
+                            'tenant_separator' : os.environ.get('OS_KEYSTONE_TENANT_SEPARATOR', ':'),
+                            'service_type'     : os.environ.get('OS_KEYSTONE_SERVICE_TYPE', 'object-store'),
+                            'endpoint_type'    : os.environ.get('OS_KEYSTONE_ENDPOINT_TYPE', 'publicURL')}
+                cls.cnx = ObjectStorageFS(self.username, self.api_key, self.auth_url, keystone)
+                cls.conn = client.Connection(user=self.username, key=self.api_key, authurl=self.auth_url, auth_version='2.0')
+
+            else:
+                cls.cnx = ObjectStorageFS(self.username, self.api_key, self.auth_url)
+                cls.conn = client.Connection(user=self.username, key=self.api_key, authurl=self.auth_url)
         self.container = "ftpcloudfs_testing"
         self.cnx.mkdir("/%s" % self.container)
         self.cnx.chdir("/%s" % self.container)
@@ -35,6 +44,13 @@ class ObjectStorageFSTest(unittest.TestCase):
     def create_file(self, path, contents):
         '''Create path with contents'''
         fd = self.cnx.open(path, "wb")
+        fd.write(contents)
+        fd.close()
+
+    def create_file_with_split_limit(self, path, contents, split_size_in_mb):
+        '''Create path with contents and split size'''
+        fd = self.cnx.open(path, "wb")
+        fd.__class__.split_size = split_size_in_mb * 10**6
         fd.write(contents)
         fd.close()
 
@@ -503,6 +519,20 @@ class ObjectStorageFSTest(unittest.TestCase):
         for i in xrange(1+(size/part_size)):
             self.cnx.remove("bigfile.txt.part/%.6d" % i)
 
+    def test_large_file_rename(self):
+        content_string = "x" * 6 * 1024 * 1024
+        self.create_file_with_split_limit("testfile.txt", content_string, 5)
+        self.assertEqual(len(self.read_file('testfile.txt')), len(content_string))
+        self.cnx.rename("testfile.txt", "testfile2.txt")
+        _, files = self.conn.get_container(self.container)
+        #It's realy manifest
+        self.assertEqual(self._search_file_by_name(files, 'testfile2.txt')['bytes'], 0)
+        #And we can download whole file
+        self.assertEqual(len(self.read_file('testfile2.txt')), len(content_string))
+        self.cnx.remove("testfile.txt.part/000000")
+        self.cnx.remove("testfile.txt.part/000001")
+        self.cnx.remove("testfile2.txt")
+
     def tearDown(self):
         # Delete eveything from the container using the API
         _, fails = self.conn.get_container(self.container)
@@ -511,6 +541,12 @@ class ObjectStorageFSTest(unittest.TestCase):
         self.cnx.rmdir("/%s" % self.container)
         self.assertEquals(fails, [], "The test failed to clean up after itself leaving these objects: %r" % fails)
 
+    def _search_file_by_name(self, container_files, file_name):
+        file_list = [file for file in container_files if file['name'] == file_name]
+        if len(file_list) == 0:
+            raise ValueError("Cant find file %s in container_files %s" % (file_name, container_files))
+        else:
+            return file_list[0]
 
 class MockupConnection(object):
     '''Mockup object to simulate a CF connection.'''

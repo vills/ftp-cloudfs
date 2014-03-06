@@ -862,7 +862,12 @@ class ObjectStorageFS(object):
 
         # Do the rename of the file/dir
         headers = { 'x-copy-from': "/%s/%s" % (src_container_name, src_path) }
-        self.conn.put_object(dst_container_name, dst_path, headers=headers, contents=None)
+        meta = self.conn.head_object(src_container_name, src_path)
+        if 'x-object-manifest' in meta:
+            headers['x-object-manifest'] = meta['x-object-manifest']
+            self.conn.put_object(dst_container_name, dst_path, headers=headers, contents=None, query_string='multipart-manifest=get')
+        else:
+            self.conn.put_object(dst_container_name, dst_path, headers=headers, contents=None)
         # Delete src
         self.conn.delete_object(src_container_name, src_path)
         self._listdir_cache.flush(posixpath.dirname(src))
