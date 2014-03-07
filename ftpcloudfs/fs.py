@@ -856,9 +856,8 @@ class ObjectStorageFS(object):
         if not self.isdir(posixpath.split(dst)[0]):
             raise IOSError(ENOENT, "Can't copy %r to %r, destination directory doesn't exist" % (src, dst))
 
-        # check src/dst containers
+        # check dst container
         self._container_exists(src_container_name)
-        self._container_exists(dst_container_name)
 
         # Do the rename of the file/dir
         headers = { 'x-copy-from': "/%s/%s" % (src_container_name, src_path) }
