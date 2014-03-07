@@ -212,4 +212,5 @@ Contributors
 - Christophe Le Guern <c35sys@gmail.com>
 - Konstantin vz'One Enchant <sirkonst@gmail.com>
 - Maxim Mitroshin <mitroshin@selectel.org>
+- Sokolov Ilya <falconmain@gmail.com>
 
