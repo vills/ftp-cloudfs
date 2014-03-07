@@ -7,9 +7,8 @@ from swiftclient import client
 from ftpcloudfs.fs import ObjectStorageFS, ListDirCache
 from ftpcloudfs.errors import IOSError
 
-#import logging
-#logging.getLogger().setLevel(logging.DEBUG)
-#logging.basicConfig(level=logging.DEBUG)
+import logging
+logging.getLogger("swiftclient").setLevel(logging.CRITICAL)
 
 class ObjectStorageFSTest(unittest.TestCase):
     '''ObjectStorageFS Tests'''
