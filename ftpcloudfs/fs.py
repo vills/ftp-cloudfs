@@ -860,10 +860,13 @@ class ObjectStorageFS(object):
         self._container_exists(dst_container_name)
 
         # Do the rename of the file/dir
-        headers = { 'x-copy-from': "/%s/%s" % (src_container_name, src_path) }
         meta = self.conn.head_object(src_container_name, src_path)
         if 'x-object-manifest' in meta:
+            # a manifest file
             headers = { 'x-object-manifest': meta['x-object-manifest'] }
+        else:
+            # regular file
+            headers = { 'x-copy-from': "/%s/%s" % (src_container_name, src_path) }
         self.conn.put_object(dst_container_name, dst_path, headers=headers, contents=None)
         # Delete src
         self.conn.delete_object(src_container_name, src_path)
