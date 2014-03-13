@@ -369,8 +369,6 @@ class ObjectStorageFSTest(unittest.TestCase):
         self.assertEqual(self.cnx.listdir("."), ["testfile", "testfile.part"])
         self.assertEqual(self.cnx.getsize("testfile"), 4096)
         self.cnx.remove("testfile")
-        for i in range(1, 5):
-            self.cnx.remove("testfile.part/%d" % i)
 
     def test_seek_set_resume(self):
         ''' seek/resume functionality (seek_set) '''
@@ -481,8 +479,6 @@ class ObjectStorageFSTest(unittest.TestCase):
         stored_content = self.read_file("/%s/bigfile.txt" % self.container)
         self.assertEqual(stored_content, content)
         self.cnx.remove("bigfile.txt")
-        for i in range(size/part_size):
-            self.cnx.remove("bigfile.txt.part/%.6d" % i)
 
     def test_large_file_support_big_chunk(self):
         ''' auto-split of large files, writing a single big chunk '''
@@ -497,8 +493,6 @@ class ObjectStorageFSTest(unittest.TestCase):
         self.assertEqual(len(self.cnx.listdir("bigfile.txt.part/")), size/part_size)
         self.assertEqual(self.cnx.getsize("bigfile.txt.part/000000"), part_size)
         self.cnx.remove("bigfile.txt")
-        for i in xrange(size/part_size):
-            self.cnx.remove("bigfile.txt.part/%.6d" % i)
 
     def test_large_file_support_content(self):
         ''' auto-split of large files, reminder last part '''
@@ -515,8 +509,6 @@ class ObjectStorageFSTest(unittest.TestCase):
         self.assertEqual(len(stored_content), len(content))
         self.assertEqual(stored_content, content)
         self.cnx.remove("bigfile.txt")
-        for i in xrange(1+(size/part_size)):
-            self.cnx.remove("bigfile.txt.part/%.6d" % i)
 
     def test_large_file_rename(self):
         content_string = "x" * 6 * 1024 * 1024
