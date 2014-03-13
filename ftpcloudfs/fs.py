@@ -807,6 +807,7 @@ class ObjectStorageFS(object):
         return not name
 
     def _remove_path_folder_files(self, path):
+        logging.info("Removing manifest file's parts from:  %s" % path)
         files = self.listdir(path)
         for file in files:
           self.remove(path + '/' + file)
