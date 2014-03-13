@@ -532,6 +532,24 @@ class ObjectStorageFSTest(unittest.TestCase):
         self.cnx.remove("testfile.txt.part/000001")
         self.cnx.remove("testfile2.txt")
 
+    def test_large_file_remove(self):
+      content_string = "x" * 6 * 1024 * 1024
+      self.create_file_with_split_limit("testfile.txt", content_string, 5)
+      self.assertEqual(self.cnx.listdir("."), ["testfile.txt", "testfile.txt.part"])
+      self.cnx.remove('testfile.txt')
+      self.assertEqual(self.cnx.listdir("."), [])
+
+    def test_large_file_remove_fail(self):
+      #Manualy delete .path folder. Expect not to fail.
+      content_string = "x" * 6 * 1024 * 1024
+      self.create_file_with_split_limit("testfile.txt", content_string, 5)
+      self.assertEqual(self.cnx.listdir("."), ["testfile.txt", "testfile.txt.part"])
+      self.cnx.remove("testfile.txt.part/000000")
+      self.cnx.remove("testfile.txt.part/000001")
+      self.assertEqual(self.cnx.listdir("."), ["testfile.txt"])
+      self.cnx.remove('testfile.txt')
+      self.assertEqual(self.cnx.listdir("."), [])
+
     def tearDown(self):
         # Delete eveything from the container using the API
         _, fails = self.conn.get_container(self.container)

@@ -799,9 +799,17 @@ class ObjectStorageFS(object):
         if self.isdir(path):
             raise IOSError(EACCES, "Can't remove a directory (use rmdir instead)")
 
+        meta = self.conn.head_object(container, name)
+        if 'x-object-manifest' in meta:
+            self._remove_path_folder_files('/' + meta['x-object-manifest'])
         self.conn.delete_object(container, name)
         self._listdir_cache.flush(posixpath.dirname(path))
         return not name
+
+    def _remove_path_folder_files(self, path):
+        files = self.listdir(path)
+        for file in files:
+          self.remove(path + '/' + file)
 
     @translate_objectstorage_error
     def _rename_container(self, src_container_name, dst_container_name):
