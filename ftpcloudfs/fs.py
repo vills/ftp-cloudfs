@@ -451,6 +451,7 @@ class ListDirCache(object):
             objects.extend(newobjects)
         logging.debug("total number of objects %s:" % len(objects))
 
+        if self.cffs.hide_part_dir: manifests = []
         for obj in objects:
             # {u'bytes': 4820,  u'content_type': '...',  u'hash': u'...',  u'last_modified': u'2008-11-05T00:56:00.406565',  u'name': u'new_object'},
             if 'subdir' in obj:
@@ -462,6 +463,7 @@ class ListDirCache(object):
                 manifest_obj = self.conn.head_object(container, obj['name'])
                 logging.debug("possible manifest file: %r" % manifest_obj)
                 if 'x-object-manifest' in manifest_obj:
+                    if self.cffs.hide_part_dir: manifests.append(manifest_obj['x-object-manifest'])
                     logging.debug("manifest found: %s" % manifest_obj['x-object-manifest'])
                     obj['hash'] = manifest_obj['etag']
                     obj['bytes'] = int(manifest_obj['content-length'])
@@ -469,6 +471,11 @@ class ListDirCache(object):
             # Keep all names in utf-8, just like the filesystem
             name = posixpath.basename(obj['name']).encode("utf-8")
             cache[name] = self._make_stat(**obj)
+        if self.cffs.hide_part_dir:
+            for manifest in manifests:
+                container, obj = parse_fspath('/' + manifest)
+                if obj in cache:
+                    del cache[obj]
 
     def listdir_root(self, cache):
         """Fills cache with the list of containers"""
@@ -592,7 +599,7 @@ class ObjectStorageFS(object):
     memcache_hosts = None
 
     @translate_objectstorage_error
-    def __init__(self, username, api_key, authurl, keystone=None):
+    def __init__(self, username, api_key, authurl, keystone=None, hide_part_dir=True):
         """
         Create the Object Storage connection.
 
@@ -604,6 +611,7 @@ class ObjectStorageFS(object):
         self.conn = None
         self.authurl = authurl
         self.keystone = keystone
+        self.hide_part_dir = hide_part_dir
         # A cache to hold the information from the last listdir
         self._listdir_cache = ListDirCache(self)
         self._cwd = '/'

@@ -88,6 +88,7 @@ Options:
   --pid-file=PID_FILE   Pid file location when in daemon mode
   --uid=UID             UID to drop the privilige to when in daemon mode
   --gid=GID             GID to drop the privilige to when in daemon mode
+  --hide-part-directory Hide .part directory from large files
   --keystone-auth       Use auth 2.0 (Keystone, requires keystoneclient)
   --keystone-region-name=REGION_NAME
                         Region name to be used in auth 2.0
@@ -108,7 +109,7 @@ The defaults can be changed using a configuration file (by default in
 CACHE MANAGEMENT
 ================
 
-`OpenStack Object Storage (Swift)`_ is an object storage and not a real file system. 
+`OpenStack Object Storage (Swift)`_ is an object storage and not a real file system.
 This proxy simulates enough file system functionality to be used over FTP, but it
 has a performance impact.
 
@@ -213,4 +214,3 @@ Contributors
 - Konstantin vz'One Enchant <sirkonst@gmail.com>
 - Maxim Mitroshin <mitroshin@selectel.org>
 - Sokolov Ilya <falconmain@gmail.com>
-

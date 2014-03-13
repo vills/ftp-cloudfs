@@ -542,6 +542,27 @@ class ObjectStorageFSTest(unittest.TestCase):
       self.cnx.remove('testfile.txt')
       self.assertEqual(self.cnx.listdir("."), [])
 
+    def test_large_file_listning(self):
+      content_string = "x" * 6 * 1024 * 1024
+      self.create_file_with_split_limit("testfile.txt", content_string, 5)
+      self.assertEqual(self.cnx.listdir("."), ["testfile.txt", "testfile.txt.part"])
+      self.cnx.hide_part_dir = False
+      self.assertEqual(self.cnx.listdir("."), ["testfile.txt"])
+      self.cnx.remove("testfile.txt.part/000000")
+      self.cnx.remove("testfile.txt.part/000001")
+      self.cnx.remove("testfile.txt")
+      self.cnx.hide_part_dir = True
+
+    def test_large_file_remove_with_hidden_part(self):
+      content_string = "x" * 6 * 1024 * 1024
+      self.create_file_with_split_limit("testfile.txt", content_string, 5)
+      self.assertEqual(self.cnx.listdir("."), ["testfile.txt", "testfile.txt.part"])
+      self.cnx.hide_part_dir = False
+      self.cnx.remove('testfile.txt')
+      self.cnx.hide_part_dir = True
+      #We realy delete hidden .part dir
+      self.assertEqual(self.cnx.listdir("."), [])
+
     def tearDown(self):
         # Delete eveything from the container using the API
         _, fails = self.conn.get_container(self.container)
