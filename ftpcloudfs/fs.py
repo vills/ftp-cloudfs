@@ -476,7 +476,7 @@ class ListDirCache(object):
         if self.cffs.hide_part_dir:
             for manifest in manifests:
                 manifest_container, obj = parse_fspath('/' + manifest)
-                if manifest_container == container && obj in cache:
+                if manifest_container == container and obj in cache:
                     del cache[obj]
 
     def listdir_root(self, cache):
