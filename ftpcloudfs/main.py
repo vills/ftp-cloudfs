@@ -95,6 +95,7 @@ class Main(object):
                                   'gid': None,
                                   'masquerade-firewall': None,
                                   'split-large-files': '0',
+                                  'hide_part_dir': 'no',
                                   # keystone auth 2.0 support
                                   'keystone-auth': False,
                                   'keystone-region-name': None,
@@ -184,6 +185,12 @@ class Main(object):
                           default=self.config.get('ftpcloudfs', 'gid'),
                           help="GID to drop the privilige to when in daemon mode")
 
+        parser.add_option('--hide-part-directory',
+                          action="store_true",
+                          dest="hide_part_dir",
+                          default=self.config.getboolean('ftpcloudfs', 'hide_part_dir'),
+                          help="Part directory for static large objects")
+
         parser.add_option('--keystone-auth',
                           action="store_true",
                           dest="keystone",
@@ -239,6 +246,7 @@ class Main(object):
         ObjectStorageFtpFS.authurl = self.options.authurl
         ObjectStorageFtpFS.keystone = self.options.keystone
         ObjectStorageFtpFS.memcache_hosts = self.options.memcache
+        ObjectStorageFtpFS.hide_part_dir = self.options.hide_part_dir
 
         try:
             # store bytes
@@ -326,4 +334,3 @@ class Main(object):
 
             self.setup_log()
             ftpd.serve_forever()
-
