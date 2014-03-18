@@ -189,7 +189,7 @@ class Main(object):
                           action="store_true",
                           dest="hide_part_dir",
                           default=self.config.getboolean('ftpcloudfs', 'hide_part_dir'),
-                          help="Part directory for static large objects")
+                          help="Hide .part directories from large file support")
 
         parser.add_option('--keystone-auth',
                           action="store_true",

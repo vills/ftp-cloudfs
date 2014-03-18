@@ -30,6 +30,9 @@
 # Specify a size in MB to split large files.
 # split-large-files = (empty)
 
+# Hide .part directory from large files
+# hide_part_dir = no
+
 # Be verbose on logging.
 # verbose = no
 
@@ -47,9 +50,6 @@
 
 # GID to drop priviliges when in daemon mode.
 # gid = (empty)
-
-# Hide .part directory from large files
-# hide_part_dir = yes
 
 # Masquerade IP address in case your server is behind a firewall or NATed.
 # masquerade-firewall = (empty)
