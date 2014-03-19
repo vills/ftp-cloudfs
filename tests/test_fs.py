@@ -565,7 +565,7 @@ class ObjectStorageFSTest(unittest.TestCase):
       self.cnx.remove("testfile.txt.part/000001")
       self.cnx.remove("testfile.txt")
       self.cnx.chdir("..")
-      self.cnx.remove("subdir")
+      self.cnx.rmdir("subdir")
       self.cnx.hide_part_dir = False
 
     def test_large_file_remove_with_hidden_part(self):
