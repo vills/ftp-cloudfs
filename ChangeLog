@@ -1,3 +1,14 @@
+2014-03-20 Juan J. Martinez <juan@memset.com>
+
+ * 0.26
+  This release improves large file support:
+  - Large file rename (manifest only, not the parts).
+  - Delete large files (manifest and parts are removed).
+  - Hide ".part" directory in directory listings.
+  - keystone auth support in tests
+
+   Thanks to Sokolov Ilya for his contributions to this release!
+
 2014-02-20 Juan J. Martinez <juan@memset.com>
 
  * 0.25.3
