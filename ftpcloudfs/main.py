@@ -185,12 +185,6 @@ class Main(object):
                           default=self.config.get('ftpcloudfs', 'gid'),
                           help="GID to drop the privilige to when in daemon mode")
 
-        parser.add_option('--hide-part-directory',
-                          action="store_true",
-                          dest="hide_part_dir",
-                          default=self.config.getboolean('ftpcloudfs', 'hide_part_dir'),
-                          help="Hide .part directories from large file support")
-
         parser.add_option('--keystone-auth',
                           action="store_true",
                           dest="keystone",
