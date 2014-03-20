@@ -542,7 +542,7 @@ class ObjectStorageFSTest(unittest.TestCase):
       self.cnx.remove('testfile.txt')
       self.assertEqual(self.cnx.listdir("."), [])
 
-    def test_large_file_listning(self):
+    def test_large_file_listing(self):
       content_string = "x" * 6 * 1024 * 1024
       self.create_file_with_split_limit("testfile.txt", content_string, 5)
       self.assertEqual(self.cnx.listdir("."), ["testfile.txt", "testfile.txt.part"])
@@ -551,6 +551,21 @@ class ObjectStorageFSTest(unittest.TestCase):
       self.cnx.remove("testfile.txt.part/000000")
       self.cnx.remove("testfile.txt.part/000001")
       self.cnx.remove("testfile.txt")
+      self.cnx.hide_part_dir = False
+
+    def test_large_file_listing_subdir(self):
+      content_string = "x" * 6 * 1024 * 1024
+      self.cnx.mkdir("subdir")
+      self.cnx.chdir("subdir")
+      self.create_file_with_split_limit("testfile.txt", content_string, 5)
+      self.assertEqual(self.cnx.listdir("."), ["testfile.txt", "testfile.txt.part"])
+      self.cnx.hide_part_dir = True
+      self.assertEqual(self.cnx.listdir("."), ["testfile.txt"])
+      self.cnx.remove("testfile.txt.part/000000")
+      self.cnx.remove("testfile.txt.part/000001")
+      self.cnx.remove("testfile.txt")
+      self.cnx.chdir("..")
+      self.cnx.rmdir("subdir")
       self.cnx.hide_part_dir = False
 
     def test_large_file_remove_with_hidden_part(self):
