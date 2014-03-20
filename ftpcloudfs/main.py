@@ -95,7 +95,7 @@ class Main(object):
                                   'gid': None,
                                   'masquerade-firewall': None,
                                   'split-large-files': '0',
-                                  'hide_part_dir': 'no',
+                                  'hide-part-dir': 'no',
                                   # keystone auth 2.0 support
                                   'keystone-auth': False,
                                   'keystone-region-name': None,
@@ -240,7 +240,7 @@ class Main(object):
         ObjectStorageFtpFS.authurl = self.options.authurl
         ObjectStorageFtpFS.keystone = self.options.keystone
         ObjectStorageFtpFS.memcache_hosts = self.options.memcache
-        ObjectStorageFtpFS.hide_part_dir = self.options.hide_part_dir
+        ObjectStorageFtpFS.hide_part_dir = self.config.getboolean('ftpcloudfs', 'hide-part-dir')
 
         try:
             # store bytes

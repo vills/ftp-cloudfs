@@ -31,7 +31,7 @@
 # split-large-files = (empty)
 
 # Hide .part directory from large files
-# hide_part_dir = no
+# hide-part-dir = no
 
 # Be verbose on logging.
 # verbose = no
