@@ -453,6 +453,7 @@ class ListDirCache(object):
 
         if self.cffs.hide_part_dir:
             manifests = []
+
         for obj in objects:
             # {u'bytes': 4820,  u'content_type': '...',  u'hash': u'...',  u'last_modified': u'2008-11-05T00:56:00.406565',  u'name': u'new_object'},
             if 'subdir' in obj:
@@ -473,12 +474,14 @@ class ListDirCache(object):
             # Keep all names in utf-8, just like the filesystem
             name = posixpath.basename(obj['name']).encode("utf-8")
             cache[name] = self._make_stat(**obj)
+
         if self.cffs.hide_part_dir:
             for manifest in manifests:
-                manifest_container, obj = parse_fspath('/' + manifest)
+                manifest_container, manifest_obj = parse_fspath('/' + manifest)
                 if manifest_container == container:
                     for cache_obj in cache.copy():
-                        if obj == os.path.join(path, cache_obj):
+                        if manifest_obj == os.path.join(path, cache_obj):
+                            logging.debug("hidding part dir %r" % manifest_obj)
                             del cache[cache_obj]
 
     def listdir_root(self, cache):
