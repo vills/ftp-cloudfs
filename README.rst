@@ -157,6 +157,10 @@ When a *FILE* is larger than the specified amount of MB, a *FILE.part* directory
 *n* parts will be created splitting the file automatically. The original file name will be used to
 store the manifest. If the original file is downloaded, the parts will be served as it was a single file.
 
+The *FILE.part* directory can be removed from directory listings using the *hide-part-dir* configuration
+token. Please be aware that the directory will still be visible when accessing the storage using
+swift API.
+
 
 SUPPORT
 =======
