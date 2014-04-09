@@ -48,6 +48,9 @@ class ProxyConnection(Connection):
         self.real_ip = None
         self.range_from = None
         self.ignore_auth_cache = False
+        self.tenant_name = None
+        if kwargs['auth_version'] == "2.0":
+            self.tenant_name = kwargs['tenant_name']
         super(ProxyConnection, self).__init__(*args, **kwargs)
 
     def http_connection(self):
@@ -77,7 +80,10 @@ class ProxyConnection(Connection):
     def get_auth(self):
         """Perform the authentication using a token cache if memcache is available"""
         if self.memcache:
-            key = "tk%s" % md5("%s%s%s" % (self.authurl, self.user, self.key)).hexdigest()
+            if self.tenant_name:
+                key = "tk%s" % md5("%s%s%s%s" % (self.authurl, self.user, self.tenant_name, self.key)).hexdigest()
+            else:
+                key = "tk%s" % md5("%s%s%s" % (self.authurl, self.user, self.key)).hexdigest()
             cache = self.memcache.get(key)
             if not cache or self.ignore_auth_cache:
                 logging.debug("token cache miss, key=%s" % key)
@@ -378,9 +384,15 @@ class ListDirCache(object):
 
     def key(self, index):
         """Returns a key for a user distributed cache."""
-        logging.debug("cache key for %r" % [self.cffs.authurl, self.cffs.username, index])
+        if self.cffs.tenant_name:
+            logging.debug("cache key for %r" % [self.cffs.authurl, self.cffs.username, self.cffs.tenant_name, index])
+        else:
+            logging.debug("cache key for %r" % [self.cffs.authurl, self.cffs.username, index])
         if not hasattr(self, "_key_base"):
-            self._key_base = md5("%s%s" % (self.cffs.authurl, self.cffs.username)).hexdigest()
+            if self.cffs.tenant_name:
+                self._key_base = md5("%s%s%s" % (self.cffs.authurl, self.cffs.username, self.cffs.tenant_name)).hexdigest()
+            else:
+                self._key_base = md5("%s%s" % (self.cffs.authurl, self.cffs.username)).hexdigest()
         return "%s-%s" % (self._key_base, md5(smart_str(index)).hexdigest())
 
     def flush(self, path=None):
@@ -632,12 +644,11 @@ class ObjectStorageFS(object):
             raise ClientException("username/password required", http_status=401)
 
         kwargs = dict(authurl=self.authurl, auth_version="1.0")
+        tenant_name = None
 
         if self.keystone:
             if self.keystone['tenant_separator'] in username:
                 tenant_name, username = username.split(self.keystone['tenant_separator'], 1)
-            else:
-                tenant_name = None
 
             logging.debug("keystone authurl=%r username=%r tenant_name=%r conf=%r" % (self.authurl, username, tenant_name, self.keystone))
 
@@ -659,6 +670,8 @@ class ObjectStorageFS(object):
         self.conn.http_conn = None
         # now we are authenticated and we have an username
         self.username = username
+        if tenant_name:
+            self.tenant_name = tenant_name
 
     def close(self):
         """Dummy function which does nothing - no need to close"""
