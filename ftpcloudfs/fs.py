@@ -80,10 +80,8 @@ class ProxyConnection(Connection):
     def get_auth(self):
         """Perform the authentication using a token cache if memcache is available"""
         if self.memcache:
-            if self.tenant_name:
-                key = "tk%s" % md5("%s%s%s%s" % (self.authurl, self.user, self.tenant_name, self.key)).hexdigest()
-            else:
-                key = "tk%s" % md5("%s%s%s" % (self.authurl, self.user, self.key)).hexdigest()
+            tenant_name = self.tenant_name or "-"
+            key = "tk%s" % md5("%s%s%s%s" % (self.authurl, self.user, tenant_name, self.key)).hexdigest()
             cache = self.memcache.get(key)
             if not cache or self.ignore_auth_cache:
                 logging.debug("token cache miss, key=%s" % key)
@@ -384,15 +382,10 @@ class ListDirCache(object):
 
     def key(self, index):
         """Returns a key for a user distributed cache."""
-        if self.cffs.tenant_name:
-            logging.debug("cache key for %r" % [self.cffs.authurl, self.cffs.username, self.cffs.tenant_name, index])
-        else:
-            logging.debug("cache key for %r" % [self.cffs.authurl, self.cffs.username, index])
+        tenant_name = self.cffs.tenant_name or "-"
+        logging.debug("cache key for %r" % [self.cffs.authurl, self.cffs.username, tenant_name, index])
         if not hasattr(self, "_key_base"):
-            if self.cffs.tenant_name:
-                self._key_base = md5("%s%s%s" % (self.cffs.authurl, self.cffs.username, self.cffs.tenant_name)).hexdigest()
-            else:
-                self._key_base = md5("%s%s" % (self.cffs.authurl, self.cffs.username)).hexdigest()
+            self._key_base = md5("%s%s%s" % (self.cffs.authurl, self.cffs.username, tenant_name)).hexdigest()
         return "%s-%s" % (self._key_base, md5(smart_str(index)).hexdigest())
 
     def flush(self, path=None):
