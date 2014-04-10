@@ -49,7 +49,7 @@ class ProxyConnection(Connection):
         self.range_from = None
         self.ignore_auth_cache = False
         self.tenant_name = None
-        if kwargs['auth_version'] == "2.0":
+        if kwargs.get('auth_version') == "2.0":
             self.tenant_name = kwargs['tenant_name']
         super(ProxyConnection, self).__init__(*args, **kwargs)
 
