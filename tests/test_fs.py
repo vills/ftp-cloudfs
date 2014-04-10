@@ -31,7 +31,8 @@ class ObjectStorageFSTest(unittest.TestCase):
                             'service_type'     : os.environ.get('OS_KEYSTONE_SERVICE_TYPE', 'object-store'),
                             'endpoint_type'    : os.environ.get('OS_KEYSTONE_ENDPOINT_TYPE', 'publicURL')}
                 cls.cnx = ObjectStorageFS(self.username, self.api_key, self.auth_url, keystone)
-                cls.conn = client.Connection(user=self.username, key=self.api_key, authurl=self.auth_url, auth_version='2.0')
+                tenant_name, username = cls.username.split(keystone['tenant_separator'], 1)
+                cls.conn = client.Connection(user=username, tenant_name=tenant_name,key=self.api_key, authurl=self.auth_url, auth_version='2.0')
 
             else:
                 cls.cnx = ObjectStorageFS(self.username, self.api_key, self.auth_url)
