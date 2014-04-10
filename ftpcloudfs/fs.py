@@ -670,8 +670,7 @@ class ObjectStorageFS(object):
         self.conn.http_conn = None
         # now we are authenticated and we have an username
         self.username = username
-        if tenant_name:
-            self.tenant_name = tenant_name
+        self.tenant_name = tenant_name
 
     def close(self):
         """Dummy function which does nothing - no need to close"""
