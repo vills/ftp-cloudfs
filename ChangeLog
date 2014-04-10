@@ -1,3 +1,16 @@
+2014-04-10 Juan J. Martinez <juan@memset.com>
+
+ * 0.26.1
+ - Fixed a bug in token cache code with auth 2.0 (keystone) when used
+   with memcache. The same username in different tenants could get the
+   same auth token.
+
+   This bug was introduced in 0.24.
+
+   Thanks to Igor Belikov for the report and the patch!
+
+ - Auth 2.0 support in tests has been improved. 
+
 2014-03-20 Juan J. Martinez <juan@memset.com>
 
  * 0.26
