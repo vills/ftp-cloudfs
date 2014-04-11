@@ -1,5 +1,8 @@
 # ftpcloudfs example configuration file
 #
+# Defaults are shown in the comments.
+# Configuration tokens don't require quotes.
+#
 
 [ftpcloudfs]
 
