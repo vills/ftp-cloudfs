@@ -35,6 +35,9 @@ REQUIREMENTS
 IMPORTANT: pyftpdlib 1.2.0 has a couple of known issues (memory leak, file descriptor leak) and it shouldn't
 be used in production systems.
 
+python-swift client 2.x uses Requests and it is currently incompatible with ftp-cloudfs. Please use
+version 1.9.0 until we transition to Requests!
+
 
 Operating Systems
 =================
