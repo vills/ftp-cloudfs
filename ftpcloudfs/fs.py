@@ -53,6 +53,17 @@ class ProxyConnection(Connection):
             self.tenant_name = kwargs['tenant_name']
         super(ProxyConnection, self).__init__(*args, **kwargs)
 
+        # compatibilty with swifclient < 1.9.0
+        if not hasattr(self, "close") or not callable(self.close):
+            self.close = self._proxy_connection_close
+
+    def _proxy_connection_close(self):
+        if isinstance(self.http_conn, tuple) and len(self.http_conn) > 1:
+            conn = self.http_conn[1]
+            if hasattr(conn, 'close') and callable(conn.close):
+                conn.close()
+                self.http_conn = None
+
     def http_connection(self):
         def request_wrapper(fn):
             @wraps(fn)
