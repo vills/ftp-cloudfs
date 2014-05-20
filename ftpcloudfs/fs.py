@@ -261,6 +261,8 @@ class ObjectStorageFD(object):
     def close(self):
         """Close the object and finish the data transfer."""
         if 'r' in self.mode:
+            self.closed = True
+            self.conn.close()
             return
         if self.pending_copy_task:
             logging.debug("waiting for a pending copy task...")
@@ -270,6 +272,8 @@ class ObjectStorageFD(object):
                 raise IOSError(EIO, 'Failed to store the file')
         if self.obj is not None:
             self.obj.finish_chunk()
+        self.closed = True
+        self.conn.close()
 
     def read(self, size=65536):
         """
@@ -666,8 +670,8 @@ class ObjectStorageFS(object):
         self.tenant_name = tenant_name
 
     def close(self):
-        """Dummy function which does nothing - no need to close"""
-        pass
+        """Explicitly close the connection, although it may not be required"""
+        self.conn.close()
 
     def isabs(self, path):
         """Test whether a path is absolute"""
