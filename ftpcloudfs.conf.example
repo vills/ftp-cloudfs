@@ -57,6 +57,11 @@
 # Masquerade IP address in case your server is behind a firewall or NATed.
 # masquerade-firewall = (empty)
 
+# Passive ports to be used for data transfers. Expected to be a port range
+# (endpoints included) in integer:integer format (eg. 60000:65535).
+# By default the operating system will assign a port.
+# passive-ports = (empty)
+
 # Auth 2.0 (Keystone), requires keystoneclient
 # keystone-auth = no
 

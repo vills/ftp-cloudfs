@@ -94,6 +94,7 @@ class Main(object):
                                   'uid': None,
                                   'gid': None,
                                   'masquerade-firewall': None,
+                                  'passive-ports': None,
                                   'split-large-files': '0',
                                   'hide-part-dir': 'no',
                                   # keystone auth 2.0 support
@@ -254,6 +255,17 @@ class Main(object):
                 MyFTPHandler.masquerade_address = socket.gethostbyname(masquerade)
             except socket.gaierror, (_, errmsg):
                 sys.exit('Masquerade address error: %s' % errmsg)
+
+        passive_ports = self.config.get('ftpcloudfs', 'passive-ports')
+        if passive_ports:
+            try:
+                passive_ports = [p.strip() for p in passive_ports.split(":", 2)]
+                if len(passive_ports) != 2 or passive_ports[0] >= passive_ports[1]:
+                    raise ValueError("more than two values")
+                passive_ports = map(int, passive_ports)
+                MyFTPHandler.passive_ports = range(passive_ports[0], passive_ports[1]+1)
+            except (ValueError, TypeError):
+                sys.exit('Passive ports error: int:int expected')
 
         try:
             max_cons_per_ip = int(self.config.get('ftpcloudfs', 'max-cons-per-ip'))
