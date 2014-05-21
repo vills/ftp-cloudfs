@@ -261,7 +261,7 @@ class Main(object):
             try:
                 passive_ports = [p.strip() for p in passive_ports.split(":", 2)]
                 if len(passive_ports) != 2 or passive_ports[0] >= passive_ports[1]:
-                    raise ValueError("more than two values")
+                    raise ValueError()
                 passive_ports = map(int, passive_ports)
                 MyFTPHandler.passive_ports = range(passive_ports[0], passive_ports[1]+1)
             except (ValueError, TypeError):
