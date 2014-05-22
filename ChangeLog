@@ -1,3 +1,12 @@
+2014-05-21 Juan J. Martinez <juan@memset.com>
+
+ * 0.27
+ - Added new configuration token "passive-ports" to expose pyftpdlib's
+   functionality. Check ftpcloudfs.conf.example for details.
+ - Explicitly close connections instead of relying on the garbage
+   collector. Some compatibility code has been added for those using
+   python-swiftclient < 1.9.0.
+
 2014-05-14 Juan J. Martinez <juan@memset.com>
 
  * 0.26.2
