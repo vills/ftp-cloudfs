@@ -60,13 +60,13 @@ class Main(object):
                 # fall back to UDP
                 handler = SysLogHandler(facility=SysLogHandler.LOG_DAEMON)
             finally:
-                prefix = "%s[%s]: " % (__package__, self.pid)
+                prefix = "%s[%(process)d]: " % __package__
                 formatter = logging.Formatter(prefix + "%(message)s")
                 handler.setFormatter(formatter)
                 logger.addHandler(handler)
                 logger.setLevel(self.options.log_level)
         else:
-            log_format = '%(asctime)-15s - %(levelname)s - %(message)s'
+            log_format = '[%(process)d] %(asctime)-15s - %(levelname)s - %(message)s'
             logging.basicConfig(filename=self.options.log_file,
                                 format=log_format,
                                 level=self.options.log_level)
