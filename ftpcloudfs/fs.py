@@ -217,6 +217,7 @@ class ObjectStorageFD(object):
                 logging.error("Failed to store the manifest %s: %s" % (name, ex.http_reason))
                 sys.exit(1)
             logging.debug("copy task done")
+            conn.close()
         self.pending_copy_task = multiprocessing.Process(target=copy_task,
                                                          args=(self.conn,
                                                                self.container,
