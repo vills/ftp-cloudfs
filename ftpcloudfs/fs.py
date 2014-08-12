@@ -65,7 +65,7 @@ class ProxyConnection(Connection):
     def http_connection(self):
         def request_wrapper(fn):
             @wraps(fn)
-            def request_x_forwarded_for(method, url, body=None, headers=None):
+            def request_header_injection(method, url, body=None, headers=None):
                 if headers is None:
                     headers = {}
                 if self.real_ip:
@@ -79,7 +79,7 @@ class ProxyConnection(Connection):
                     fn(method, url, body=body, headers=headers)
                 else:  # swiftclient 2.0, ported to Requests
                     fn(method, url, data=body, headers=headers)
-            return request_x_forwarded_for
+            return request_header_injection
 
         parsed, conn = super(ProxyConnection, self).http_connection()
         conn.request = request_wrapper(conn.request)
