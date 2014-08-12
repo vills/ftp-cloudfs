@@ -103,6 +103,7 @@ class Main(object):
                                   'keystone-tenant-separator': default_ks_tenant_separator,
                                   'keystone-service-type': default_ks_service_type,
                                   'keystone-endpoint-type': default_ks_endpoint_type,
+                                  'rackspace-service-net' : 'no',
                                  })
         config.read(default_config_file)
         if not config.has_section('ftpcloudfs'):
@@ -242,6 +243,7 @@ class Main(object):
         ObjectStorageFtpFS.keystone = self.options.keystone
         ObjectStorageFtpFS.memcache_hosts = self.options.memcache
         ObjectStorageFtpFS.hide_part_dir = self.config.getboolean('ftpcloudfs', 'hide-part-dir')
+        ObjectStorageFtpFS.snet = self.config.getboolean('ftpcloudfs', 'rackspace-service-net')
 
         try:
             # store bytes

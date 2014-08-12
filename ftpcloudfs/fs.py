@@ -630,7 +630,7 @@ class ObjectStorageFS(object):
     memcache_hosts = None
 
     @translate_objectstorage_error
-    def __init__(self, username, api_key, authurl, keystone=None, hide_part_dir=False):
+    def __init__(self, username, api_key, authurl, keystone=None, hide_part_dir=False, snet=False):
         """
         Create the Object Storage connection.
 
@@ -638,11 +638,14 @@ class ObjectStorageFS(object):
         api_key
         authurl
         keystone - optional for auth 2.0 (keystone)
+        hider_part_dirt - optional, hide multipart .part files
+        snet - optional, use Rackspace's service network
         """
         self.conn = None
         self.authurl = authurl
         self.keystone = keystone
         self.hide_part_dir = hide_part_dir
+        self.snet = snet
         # A cache to hold the information from the last listdir
         self._listdir_cache = ListDirCache(self)
         self._cwd = '/'
@@ -655,7 +658,7 @@ class ObjectStorageFS(object):
         if not username or not api_key:
             raise ClientException("username/password required", http_status=401)
 
-        kwargs = dict(authurl=self.authurl, auth_version="1.0")
+        kwargs = dict(authurl=self.authurl, auth_version="1.0", snet=self.snet)
         tenant_name = None
 
         if self.keystone:

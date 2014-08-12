@@ -77,4 +77,7 @@
 # Endpoint type to be used with Auth 2.0.
 # keystone-endpoint-type = publicURL
 
+# Use Rackspace's ServiceNet internal network.
+# rackspace-service-net = no
+
 # EOF
