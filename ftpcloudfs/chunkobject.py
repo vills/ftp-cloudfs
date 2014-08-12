@@ -62,4 +62,6 @@ class ChunkObject(object):
                                   http_status=response.status,
                                   http_reason=response.reason,
                                   )
+        self.chunkable_http.close()
+        self.chunkable_http = None
 
