@@ -290,9 +290,7 @@ class ObjectStorageFD(object):
             if self.total_size > 0:
                 self.conn.range_from = self.total_size
                 # we need to open a new connection to inject the `Range` header
-                if self.conn.http_conn:
-                    self.conn.http_conn[1].close()
-                    self.conn.http_conn = None
+                self.conn.close()
             _, self.obj = self.conn.get_object(self.container, self.name, resp_chunk_size=size)
 
         logging.debug("read size=%r, total_size=%r (range_from: %s)" % (size,
@@ -667,7 +665,7 @@ class ObjectStorageFS(object):
                                     )
         # force authentication
         self.conn.url, self.conn.token = self.conn.get_auth()
-        self.conn.http_conn = None
+        self.conn.close()
         # now we are authenticated and we have an username
         self.username = username
         self.tenant_name = tenant_name
