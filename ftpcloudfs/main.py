@@ -60,7 +60,7 @@ class Main(object):
                 # fall back to UDP
                 handler = SysLogHandler(facility=SysLogHandler.LOG_DAEMON)
             finally:
-                prefix = "%s[%(process)d]: " % __package__
+                prefix = "%s[%%(process)d]: " % __package__
                 formatter = logging.Formatter(prefix + "%(message)s")
                 handler.setFormatter(formatter)
                 logger.addHandler(handler)
