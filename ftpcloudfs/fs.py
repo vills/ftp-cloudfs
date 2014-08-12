@@ -265,18 +265,16 @@ class ObjectStorageFD(object):
     @translate_objectstorage_error
     def close(self):
         """Close the object and finish the data transfer."""
-        if 'r' in self.mode:
-            self.closed = True
-            self.conn.close()
-            return
-        if self.pending_copy_task:
-            logging.debug("waiting for a pending copy task...")
-            self.pending_copy_task.join()
-            logging.debug("wait is over")
-            if self.pending_copy_task.exitcode != 0:
-                raise IOSError(EIO, 'Failed to store the file')
-        if self.obj is not None:
-            self.obj.finish_chunk()
+        if 'r' not in self.mode:
+            if self.pending_copy_task:
+                logging.debug("waiting for a pending copy task...")
+                self.pending_copy_task.join()
+                logging.debug("wait is over")
+                if self.pending_copy_task.exitcode != 0:
+                    raise IOSError(EIO, 'Failed to store the file')
+            if self.obj is not None:
+                self.obj.finish_chunk()
+        self.obj = None
         self.closed = True
         self.conn.close()
 
