@@ -1,5 +1,10 @@
 2014-08-12 Juan J. Martinez <juan@memset.com>
 
+ * 0.28.1
+ - Fixed a bug in syslog logging.
+
+2014-08-12 Juan J. Martinez <juan@memset.com>
+
  * 0.28
  - Better swift connection management avoiding CLOSE_WAIT problems
    with long time FTP sessions.
