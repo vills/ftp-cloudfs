@@ -68,6 +68,7 @@ class ProxyConnection(Connection):
             def request_header_injection(method, url, body=None, headers=None):
                 if headers is None:
                     headers = {}
+                headers['Connection'] = 'close'
                 if self.real_ip:
                     headers['X-Forwarded-For'] = self.real_ip
                 if self.range_from:
@@ -130,6 +131,19 @@ def translate_objectstorage_error(fn):
             msg = "%s: %s" % (smart_str(e.msg), smart_str(e.http_reason))
             log(msg)
             raise IOSError(err, msg)
+    return wrapper
+
+def close_when_done(fn):
+    """
+    Decorator to close swift connection when the ftp command is done.
+    """
+    @wraps(fn)
+    def wrapper(obj, *args, **kwargs):
+        try:
+            return fn(obj, *args, **kwargs)
+        finally:
+            if obj.conn:
+                obj.close()
     return wrapper
 
 def parse_fspath(path):
@@ -700,6 +714,7 @@ class ObjectStorageFS(object):
         logging.debug(e)
         raise IOSError(EPERM, 'Operation not permitted: %s' % e)
 
+    @close_when_done
     @translate_objectstorage_error
     def open(self, path, mode):
         """Open path with mode, raise IOError on error"""
@@ -738,6 +753,7 @@ class ObjectStorageFS(object):
             raise
         return True
 
+    @close_when_done
     @translate_objectstorage_error
     def mkdir(self, path):
         """
@@ -758,6 +774,7 @@ class ObjectStorageFS(object):
             logging.debug("Making container %r" % (container,))
             self.conn.put_container(container)
 
+    @close_when_done
     @translate_objectstorage_error
     def listdir(self, path):
         """
@@ -770,6 +787,7 @@ class ObjectStorageFS(object):
         list_dir = map(lambda x: unicode(x, 'utf-8'), self._listdir_cache.listdir(path))
         return list_dir
 
+    @close_when_done
     @translate_objectstorage_error
     def listdir_with_stat(self, path):
         """
@@ -781,6 +799,7 @@ class ObjectStorageFS(object):
         logging.debug("listdir_with_stat %r" % path)
         return [(unicode(name, 'utf-8)'), stat) for name, stat in self._listdir_cache.listdir_with_stat(path)]
 
+    @close_when_done
     @translate_objectstorage_error
     def rmdir(self, path):
         """
@@ -809,6 +828,7 @@ class ObjectStorageFS(object):
             logging.debug("Removing container %r" % (container,))
             self.conn.delete_container(container)
 
+    @close_when_done
     @translate_objectstorage_error
     def remove(self, path):
         """
@@ -848,6 +868,7 @@ class ObjectStorageFS(object):
         self.conn.put_container(dst_container_name)
         self._listdir_cache.flush("/")
 
+    @close_when_done
     @translate_objectstorage_error
     def rename(self, src, dst):
         """
@@ -983,6 +1004,7 @@ class ObjectStorageFS(object):
         except EnvironmentError:
             return False
 
+    @close_when_done
     @translate_objectstorage_error
     def stat(self, path):
         """
@@ -1034,6 +1056,7 @@ class ObjectStorageFS(object):
         logging.debug(e)
         raise IOSError(EPERM, 'Operation not permitted: %s' % e)
 
+    @close_when_done
     @translate_objectstorage_error
     def md5(self, path):
         """
