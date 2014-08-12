@@ -1,6 +1,7 @@
 
 import logging
 from urllib import quote
+from httplib import HTTPException
 from socket import timeout
 from ssl import SSLError
 from swiftclient.client import ClientException, http_connection
@@ -40,7 +41,7 @@ class ChunkObject(object):
             self.chunkable_http.send("%X\r\n" % len(chunk))
             self.chunkable_http.send(chunk)
             self.chunkable_http.send("\r\n")
-        except (timeout, SSLError), err:
+        except (timeout, SSLError, HTTPException), err:
             raise ClientException(err.message)
 
     def finish_chunk(self):
@@ -48,7 +49,7 @@ class ChunkObject(object):
         try:
             self.chunkable_http.send("0\r\n\r\n")
             response = self.chunkable_http.getresponse()
-        except (timeout, SSLError), err:
+        except (timeout, SSLError, HTTPException), err:
             raise ClientException(err.message)
 
         try:
