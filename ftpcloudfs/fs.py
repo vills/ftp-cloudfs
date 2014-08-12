@@ -152,8 +152,8 @@ class ObjectStorageFD(object):
 
     split_size = 0
 
-    def __init__(self, cffs, container, obj, mode):
-        self.cffs = cffs
+    def __init__(self, connection, container, obj, mode):
+        self.conn = connection
         self.container = container
         self.name = obj
         self.mode = mode
@@ -189,11 +189,6 @@ class ObjectStorageFD(object):
     @property
     def part_name(self):
         return u"%s/%.6d" % (self.part_base_name, self.part)
-
-    @property
-    def conn(self):
-        """Connection to the storage."""
-        return self.cffs.conn
 
     def _start_copy_task(self):
         """
@@ -713,7 +708,7 @@ class ObjectStorageFS(object):
         logging.debug("open %r mode %r" % (path, mode))
         self._listdir_cache.flush(posixpath.dirname(path))
         container, obj = parse_fspath(path)
-        return ObjectStorageFD(self, container, obj, mode)
+        return ObjectStorageFD(self.conn, container, obj, mode)
 
     def chdir(self, path):
         """Change current directory, raise OSError on error"""
