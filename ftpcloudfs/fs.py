@@ -672,7 +672,9 @@ class ObjectStorageFS(object):
 
     def close(self):
         """Explicitly close the connection, although it may not be required"""
-        self.conn.close()
+        logging.debug("called fs.close()")
+        if self.conn:
+            self.conn.close()
 
     def isabs(self, path):
         """Test whether a path is absolute"""
