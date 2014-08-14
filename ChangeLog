@@ -9,7 +9,7 @@
  - Better swift connection management avoiding CLOSE_WAIT problems
    with long time FTP sessions.
  - Added new configuration token "rackspace-service-network" to support
-   Rackaspace's service network as implemented in swiftclient.
+   Rackspace's service network as implemented in swiftclient.
 
 2014-05-21 Juan J. Martinez <juan@memset.com>
 
