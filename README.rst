@@ -59,8 +59,8 @@ Or if you have `pip`_ installed you can just run::
 
 which will install ftp-cloudfs with all the required dependencies.
 
-We also provide a `requirements.txt` in case you want to install all the dependencies using `pip` without
-installing ftp-cloudfs::
+We also provide a `requirements.txt` file in case you want to install all the dependencies using `pip`
+without installing ftp-cloudfs::
 
   pip install -r requirements.txt
 
