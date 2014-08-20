@@ -66,7 +66,7 @@ without installing ftp-cloudfs::
 
 ftp-cloudfs has been `included in Debian Jessie`_.
 
-.. _`pip`: http://pip.openplans.org/
+.. _`pip`: https://pip.pypa.io/
 .. _included in Debian Jessie: http://packages.debian.org/jessie/ftp-cloudfs
 
 
