@@ -12,6 +12,7 @@ import time
 import mimetypes
 import stat
 import logging
+from urllib import quote as _quote, unquote
 from errno import EPERM, ENOENT, EACCES, EIO, ENOTDIR, ENOTEMPTY
 from swiftclient.client import Connection, ClientException
 from chunkobject import ChunkObject
@@ -31,6 +32,16 @@ except ImportError:
     import simplejson as json
 
 __all__ = ['ObjectStorageFS']
+
+def encode_utf8(value):
+    if isinstance(value, unicode):
+        value = value.encode("utf-8")
+    return value
+
+def quote(value, safe="/"):
+    """ utf-8 quoting """
+    value = encode_utf8(value)
+    return _quote(value, safe)
 
 class ProxyConnection(Connection):
     """
@@ -198,11 +209,11 @@ class ObjectStorageFD(object):
 
     @property
     def part_base_name(self):
-        return u"%s.part" % self.name
+        return "%s.part" % encode_utf8(self.name)
 
     @property
     def part_name(self):
-        return u"%s/%.6d" % (self.part_base_name, self.part)
+        return "%s/%.6d" % (self.part_base_name, self.part)
 
     def _start_copy_task(self):
         """
@@ -215,7 +226,7 @@ class ObjectStorageFD(object):
         def copy_task(conn, container, name, part_name, part_base_name):
             # open a new connection
             conn = ProxyConnection(None, preauthurl=conn.url, preauthtoken=conn.token)
-            headers = { 'x-copy-from': "/%s/%s" % (container, name) }
+            headers = { 'x-copy-from': quote("/%s/%s" % (container, name)) }
             logging.debug("copying first part %r/%r, %r" % (container, part_name, headers))
             try:
                 conn.put_object(container, part_name, headers=headers, contents=None)
@@ -223,7 +234,7 @@ class ObjectStorageFD(object):
                 logging.error("Failed to copy %s: %s" % (name, ex.http_reason))
                 sys.exit(1)
             # setup the manifest
-            headers = { 'x-object-manifest': "%s/%s" % (container, part_base_name) }
+            headers = { 'x-object-manifest': quote("%s/%s" % (container, part_base_name)) }
             logging.debug("creating manifest %r/%r, %r" % (container, name, headers))
             try:
                 conn.put_object(container, name, headers=headers, contents=None)
@@ -841,6 +852,7 @@ class ObjectStorageFS(object):
         """
         path = self.abspath(path)
         logging.debug("remove %r" % path)
+        logging.info("remove %r" % path)
         container, name = parse_fspath(path)
 
         if not name:
@@ -851,7 +863,7 @@ class ObjectStorageFS(object):
 
         meta = self.conn.head_object(container, name)
         if 'x-object-manifest' in meta:
-            self._remove_path_folder_files('/' + meta['x-object-manifest'])
+            self._remove_path_folder_files(u'/' + unicode(unquote(meta['x-object-manifest']), "utf-8"))
         self.conn.delete_object(container, name)
         self._listdir_cache.flush(posixpath.dirname(path))
         return not name
@@ -923,10 +935,10 @@ class ObjectStorageFS(object):
         meta = self.conn.head_object(src_container_name, src_path)
         if 'x-object-manifest' in meta:
             # a manifest file
-            headers = { 'x-object-manifest': meta['x-object-manifest'] }
+            headers = { 'x-object-manifest': quote(meta['x-object-manifest']) }
         else:
             # regular file
-            headers = { 'x-copy-from': "/%s/%s" % (src_container_name, src_path) }
+            headers = { 'x-copy-from': quote("/%s/%s" % (src_container_name, src_path)) }
         self.conn.put_object(dst_container_name, dst_path, headers=headers, contents=None)
         # Delete src
         self.conn.delete_object(src_container_name, src_path)
