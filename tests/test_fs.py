@@ -572,6 +572,18 @@ class ObjectStorageFSTest(unittest.TestCase):
       self.cnx.remove("testfile.txt")
       self.cnx.hide_part_dir = False
 
+    def test_large_file_listing_hidden_parts_encoding(self):
+      content_string = "x" * 6 * 1024 * 1024
+      file_name = u"testfile & \u263a.txt".encode("utf-8")
+      self.create_file_with_split_limit(file_name, content_string, 5)
+      self.assertEqual(self.cnx.listdir("."), [unicode(file_name, "utf-8"),
+                                               unicode(file_name, "utf-8") + u".part",
+                                               ])
+      self.cnx.hide_part_dir = True
+      self.assertEqual(self.cnx.listdir("."), [unicode(file_name, "utf-8"),])
+      self.cnx.remove(file_name)
+      self.cnx.hide_part_dir = False
+
     def test_large_file_listing_subdir_hidden_parts(self):
       content_string = "x" * 6 * 1024 * 1024
       self.cnx.mkdir("subdir")

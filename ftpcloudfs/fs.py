@@ -501,7 +501,7 @@ class ListDirCache(object):
                 logging.debug("possible manifest file: %r" % manifest_obj)
                 if 'x-object-manifest' in manifest_obj:
                     if self.cffs.hide_part_dir:
-                        manifests.append(manifest_obj['x-object-manifest'])
+                        manifests.append(unicode(unquote(manifest_obj['x-object-manifest']), "utf-8"))
                     logging.debug("manifest found: %s" % manifest_obj['x-object-manifest'])
                     obj['hash'] = manifest_obj['etag']
                     obj['bytes'] = int(manifest_obj['content-length'])
@@ -515,7 +515,7 @@ class ListDirCache(object):
                 manifest_container, manifest_obj = parse_fspath('/' + manifest)
                 if manifest_container == container:
                     for cache_obj in cache.copy():
-                        if manifest_obj == os.path.join(path, cache_obj):
+                        if manifest_obj == unicode(unquote(os.path.join(path, cache_obj)), "utf-8"):
                             logging.debug("hidding part dir %r" % manifest_obj)
                             del cache[cache_obj]
 
