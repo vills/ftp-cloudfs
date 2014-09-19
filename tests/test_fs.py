@@ -481,6 +481,24 @@ class ObjectStorageFSTest(unittest.TestCase):
         self.assertEqual(stored_content, content)
         self.cnx.remove("bigfile.txt")
 
+    def test_large_file_support_name_encoding(self):
+        ''' auto-split of large files '''
+        size = 1024**2
+        part_size = 64*1024
+        file_name = u"bigfile & \u263a.txt".encode("utf-8")
+        fd = self.cnx.open(file_name, "wb")
+        fd.split_size = part_size
+        content = ''
+        for part in xrange(size/4096):
+            content += chr(part)*4096
+            fd.write(chr(part)*4096)
+        fd.close()
+        self.assertEqual(self.cnx.listdir("."), [unicode(file_name, "utf-8"),
+                                                 unicode(file_name, "utf-8") + u".part",
+                                                 ])
+        self.assertEqual(self.cnx.getsize(file_name), size)
+        self.cnx.remove(file_name)
+
     def test_large_file_support_big_chunk(self):
         ''' auto-split of large files, writing a single big chunk '''
         size = 1024**2
@@ -552,6 +570,18 @@ class ObjectStorageFSTest(unittest.TestCase):
       self.cnx.remove("testfile.txt.part/000000")
       self.cnx.remove("testfile.txt.part/000001")
       self.cnx.remove("testfile.txt")
+      self.cnx.hide_part_dir = False
+
+    def test_large_file_listing_hidden_parts_encoding(self):
+      content_string = "x" * 6 * 1024 * 1024
+      file_name = u"testfile & \u263a.txt".encode("utf-8")
+      self.create_file_with_split_limit(file_name, content_string, 5)
+      self.assertEqual(self.cnx.listdir("."), [unicode(file_name, "utf-8"),
+                                               unicode(file_name, "utf-8") + u".part",
+                                               ])
+      self.cnx.hide_part_dir = True
+      self.assertEqual(self.cnx.listdir("."), [unicode(file_name, "utf-8"),])
+      self.cnx.remove(file_name)
       self.cnx.hide_part_dir = False
 
     def test_large_file_listing_subdir_hidden_parts(self):
