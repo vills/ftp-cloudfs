@@ -12,9 +12,9 @@ import time
 import mimetypes
 import stat
 import logging
-from urllib import quote as _quote, unquote
+from urllib import unquote
 from errno import EPERM, ENOENT, EACCES, EIO, ENOTDIR, ENOTEMPTY
-from swiftclient.client import Connection, ClientException
+from swiftclient.client import Connection, ClientException, quote, encode_utf8
 from chunkobject import ChunkObject
 from errors import IOSError
 import posixpath
@@ -32,16 +32,6 @@ except ImportError:
     import simplejson as json
 
 __all__ = ['ObjectStorageFS']
-
-def encode_utf8(value):
-    if isinstance(value, unicode):
-        value = value.encode("utf-8")
-    return value
-
-def quote(value, safe="/"):
-    """ utf-8 quoting """
-    value = encode_utf8(value)
-    return _quote(value, safe)
 
 class ProxyConnection(Connection):
     """
