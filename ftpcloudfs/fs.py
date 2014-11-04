@@ -36,9 +36,6 @@ __all__ = ['ObjectStorageFS']
 class ProxyConnection(Connection):
     """
     Add X-Forwarded-For header to all requests.
-
-    Optionally if `range_from` is available it will be used to add a Range header
-    starting from it.
     """
 
     # max time to cache auth tokens (seconds), based on swift defaults
@@ -47,7 +44,6 @@ class ProxyConnection(Connection):
     def __init__(self, memcache, *args, **kwargs):
         self.memcache = memcache
         self.real_ip = None
-        self.range_from = None
         self.ignore_auth_cache = False
         self.tenant_name = None
         if kwargs.get('auth_version') == "2.0":
@@ -72,10 +68,6 @@ class ProxyConnection(Connection):
                 headers['Connection'] = 'close'
                 if self.real_ip:
                     headers['X-Forwarded-For'] = self.real_ip
-                if self.range_from:
-                    headers['Range'] = "bytes=%s-" % self.range_from
-                    # only for one request
-                    self.range_from = None
 
                 if 'body' in fn.func_code.co_varnames:
                     fn(method, url, body=body, headers=headers)
@@ -302,14 +294,13 @@ class ObjectStorageFD(object):
         NB: It uses the size passed into the first call for all subsequent calls.
         """
         if self.obj is None:
+            headers = { }
             if self.total_size > 0:
-                self.conn.range_from = self.total_size
-                # we need to open a new connection to inject the `Range` header
-                self.conn.close()
-            _, self.obj = self.conn.get_object(self.container, self.name, resp_chunk_size=size)
+                headers["Range"] = "bytes=%d-" % self.total_size
+            _, self.obj = self.conn.get_object(self.container, self.name, resp_chunk_size=size, headers=headers)
 
         logging.debug("read size=%r, total_size=%r (range_from: %s)" % (size,
-                self.total_size, self.conn.range_from))
+                self.total_size, self.total_size))
 
         try:
             buff = self.obj.next()
