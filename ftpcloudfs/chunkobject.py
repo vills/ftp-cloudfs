@@ -25,6 +25,7 @@ class ChunkObject(object):
         headers = { 'X-Auth-Token': conn.token,
                     'Content-Type': content_type or 'application/octet-stream',
                     'Transfer-Encoding': 'chunked',
+                    'Connection': 'close',
                     # User-Agent ?
                     }
         if conn.real_ip:
