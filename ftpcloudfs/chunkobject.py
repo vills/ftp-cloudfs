@@ -35,7 +35,7 @@ class ChunkObject(object):
         # "real" http connection and do the HTTP request ourselves
         self.raw_conn = self.conn.request_session.get_adapter(conn.url).get_connection(conn.url)._get_conn()
 
-        self.raw_conn.putrequest('PUT', path)
+        self.raw_conn.putrequest('PUT', path, skip_accept_encoding=True)
         for key, value in headers.iteritems():
             self.raw_conn.putheader(key, value)
         self.raw_conn.endheaders()
