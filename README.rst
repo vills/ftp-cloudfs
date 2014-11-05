@@ -27,7 +27,7 @@ REQUIREMENTS
 ============
 
 - Python 2 >= 2.6
-- python-swiftclient >= 1.6.0 - https://github.com/openstack/python-swiftclient/
+- python-swiftclient >= 2.0.0 - https://github.com/openstack/python-swiftclient/
 - pyftpdlib >= 1.3.0 - http://code.google.com/p/pyftpdlib/
 - python-daemon >= 1.5.5 - http://pypi.python.org/pypi/python-daemon/
 - python-memcache >= 1.45 - http://www.tummy.com/Community/software/python-memcached/
@@ -35,8 +35,7 @@ REQUIREMENTS
 IMPORTANT: pyftpdlib 1.2.0 has a couple of known issues (memory leak, file descriptor leak) and it shouldn't
 be used in production systems.
 
-python-swift client 2.x uses Requests and it is currently incompatible with ftp-cloudfs. Please use
-version 1.9.0 until we transition to Requests!
+python-swiftclient 2.x uses Requests and it is currently incompatible with ftp-cloudfs < 0.30.
 
 
 Operating Systems
