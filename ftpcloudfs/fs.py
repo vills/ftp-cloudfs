@@ -66,6 +66,16 @@ class ProxyConnection(Connection):
 
         return parsed, conn
 
+    def close(self):
+        """Our own close that actually closes the connection"""
+        if self.http_conn and type(self.http_conn) is tuple and len(self.http_conn) > 1:
+            conn = self.http_conn[1]
+            if hasattr(conn, "request_session"):
+                conn.request_session.close()
+                self.http_conn = None
+            else:
+                super(ProxyConnection, self).close()
+
     def get_auth(self):
         """Perform the authentication using a token cache if memcache is available"""
         if self.memcache:
