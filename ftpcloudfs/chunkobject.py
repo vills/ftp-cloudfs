@@ -71,6 +71,7 @@ class ChunkObject(object):
 
         # we always close the connection
         self.raw_conn.close()
+        self.conn.request_session.close()
 
         if response.status // 100 != 2:
             raise ClientException(response.reason,
