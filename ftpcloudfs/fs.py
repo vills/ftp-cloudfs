@@ -53,17 +53,13 @@ class ProxyConnection(Connection):
     def http_connection(self):
         def request_wrapper(fn):
             @wraps(fn)
-            def request_header_injection(method, url, body=None, headers=None):
+            def request_header_injection(method, url, data=None, headers=None):
                 if headers is None:
                     headers = {}
                 headers['Connection'] = 'close'
                 if self.real_ip:
                     headers['X-Forwarded-For'] = self.real_ip
-
-                if 'body' in fn.func_code.co_varnames:
-                    fn(method, url, body=body, headers=headers)
-                else:  # swiftclient 2.0, ported to Requests
-                    fn(method, url, data=body, headers=headers)
+                fn(method, url, data=data, headers=headers)
             return request_header_injection
 
         parsed, conn = super(ProxyConnection, self).http_connection()
