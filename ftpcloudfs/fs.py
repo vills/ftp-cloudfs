@@ -56,7 +56,6 @@ class ProxyConnection(Connection):
             def request_header_injection(method, url, data=None, headers=None):
                 if headers is None:
                     headers = {}
-                headers['Connection'] = 'close'
                 if self.real_ip:
                     headers['X-Forwarded-For'] = self.real_ip
                 fn(method, url, data=data, headers=headers)
