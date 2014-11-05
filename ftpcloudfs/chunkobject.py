@@ -11,8 +11,6 @@ from ftpcloudfs.utils import smart_str
 class ChunkObject(object):
 
     def __init__(self, conn, container, name, content_type=None):
-        # FIXME
-        # self._name_check()
 
         parsed, self.conn = http_connection(conn.url)
 
@@ -42,6 +40,8 @@ class ChunkObject(object):
         self.raw_conn.endheaders()
         logging.debug("ChunkedObject: path=%r, headers=%r" % (path, headers))
 
+        self.already_sent = 0
+
     def send_chunk(self, chunk):
         logging.debug("ChunkObject: sending %s bytes" % len(chunk))
         try:
@@ -50,6 +50,9 @@ class ChunkObject(object):
             self.raw_conn.send("\r\n")
         except (timeout, SSLError, HTTPException), err:
             raise ClientException(err.message)
+        else:
+            self.already_sent += len(chunk)
+            logging.debug("ChunkObject: already sent %s bytes" % self.already_sent)
 
     def finish_chunk(self):
         logging.debug("ChunkObject: finish_chunk")
