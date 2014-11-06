@@ -12,9 +12,9 @@ import time
 import mimetypes
 import stat
 import logging
-from urllib import quote as _quote, unquote
+from urllib import unquote
 from errno import EPERM, ENOENT, EACCES, EIO, ENOTDIR, ENOTEMPTY
-from swiftclient.client import Connection, ClientException
+from swiftclient.client import Connection, ClientException, quote, encode_utf8
 from chunkobject import ChunkObject
 from errors import IOSError
 import posixpath
@@ -33,22 +33,9 @@ except ImportError:
 
 __all__ = ['ObjectStorageFS']
 
-def encode_utf8(value):
-    if isinstance(value, unicode):
-        value = value.encode("utf-8")
-    return value
-
-def quote(value, safe="/"):
-    """ utf-8 quoting """
-    value = encode_utf8(value)
-    return _quote(value, safe)
-
 class ProxyConnection(Connection):
     """
     Add X-Forwarded-For header to all requests.
-
-    Optionally if `range_from` is available it will be used to add a Range header
-    starting from it.
     """
 
     # max time to cache auth tokens (seconds), based on swift defaults
@@ -57,46 +44,37 @@ class ProxyConnection(Connection):
     def __init__(self, memcache, *args, **kwargs):
         self.memcache = memcache
         self.real_ip = None
-        self.range_from = None
         self.ignore_auth_cache = False
         self.tenant_name = None
         if kwargs.get('auth_version') == "2.0":
             self.tenant_name = kwargs['tenant_name']
         super(ProxyConnection, self).__init__(*args, **kwargs)
 
-        # compatibilty with swifclient < 1.9.0
-        if not hasattr(self, "close") or not callable(self.close):
-            self.close = self._proxy_connection_close
-
-    def _proxy_connection_close(self):
-        if self.http_conn:
-            self.http_conn[1].close()
-            self.http_conn = None
-
     def http_connection(self):
         def request_wrapper(fn):
             @wraps(fn)
-            def request_header_injection(method, url, body=None, headers=None):
+            def request_header_injection(method, url, data=None, headers=None):
                 if headers is None:
                     headers = {}
-                headers['Connection'] = 'close'
                 if self.real_ip:
                     headers['X-Forwarded-For'] = self.real_ip
-                if self.range_from:
-                    headers['Range'] = "bytes=%s-" % self.range_from
-                    # only for one request
-                    self.range_from = None
-
-                if 'body' in fn.func_code.co_varnames:
-                    fn(method, url, body=body, headers=headers)
-                else:  # swiftclient 2.0, ported to Requests
-                    fn(method, url, data=body, headers=headers)
+                fn(method, url, data=data, headers=headers)
             return request_header_injection
 
         parsed, conn = super(ProxyConnection, self).http_connection()
         conn.request = request_wrapper(conn.request)
 
         return parsed, conn
+
+    def close(self):
+        """Our own close that actually closes the connection"""
+        if self.http_conn and type(self.http_conn) is tuple and len(self.http_conn) > 1:
+            conn = self.http_conn[1]
+            if hasattr(conn, "request_session"):
+                conn.request_session.close()
+                self.http_conn = None
+            else:
+                super(ProxyConnection, self).close()
 
     def get_auth(self):
         """Perform the authentication using a token cache if memcache is available"""
@@ -312,14 +290,13 @@ class ObjectStorageFD(object):
         NB: It uses the size passed into the first call for all subsequent calls.
         """
         if self.obj is None:
+            headers = { }
             if self.total_size > 0:
-                self.conn.range_from = self.total_size
-                # we need to open a new connection to inject the `Range` header
-                self.conn.close()
-            _, self.obj = self.conn.get_object(self.container, self.name, resp_chunk_size=size)
+                headers["Range"] = "bytes=%d-" % self.total_size
+            _, self.obj = self.conn.get_object(self.container, self.name, resp_chunk_size=size, headers=headers)
 
         logging.debug("read size=%r, total_size=%r (range_from: %s)" % (size,
-                self.total_size, self.conn.range_from))
+                self.total_size, self.total_size))
 
         try:
             buff = self.obj.next()
