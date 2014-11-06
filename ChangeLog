@@ -1,3 +1,14 @@
+2014-10-06 Juan J. Martinez <juan@memset.com>
+
+ * 0.30
+ - Migrated to swiftclient >= 2.0.0 and requests. This means older
+   versions of the library are not supported, so please upgrade.
+ - Added new configuration token "insecure" to allow connections to
+   auth servers with invalid SSL certs (eg, self-signed certificates).
+
+   This is a potentially disruptive release, please test before upgrading
+   your production systems!
+
 2014-09-19 Juan J. Martinez <juan@memset.com>
 
  * 0.29
