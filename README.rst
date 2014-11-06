@@ -86,6 +86,7 @@ Options:
                         Address to bind (default: 127.0.0.1)
   -a AUTHURL, --auth-url=AUTHURL
                         Authentication URL (required)
+  --insecure            Allow to access servers without checking SSL certs
   --memcache=MEMCACHE   Memcache server(s) to be used for cache (ip:port)
   -v, --verbose         Be verbose on logging
   -f, --foreground      Do not attempt to daemonize but run in foreground
