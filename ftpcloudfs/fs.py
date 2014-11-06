@@ -618,7 +618,7 @@ class ObjectStorageFS(object):
     memcache_hosts = None
 
     @translate_objectstorage_error
-    def __init__(self, username, api_key, authurl, keystone=None, hide_part_dir=False, snet=False):
+    def __init__(self, username, api_key, authurl, keystone=None, hide_part_dir=False, snet=False, insecure=False):
         """
         Create the Object Storage connection.
 
@@ -628,12 +628,14 @@ class ObjectStorageFS(object):
         keystone - optional for auth 2.0 (keystone)
         hider_part_dirt - optional, hide multipart .part files
         snet - optional, use Rackspace's service network
+        insecure - optional, allow using servers without checking their SSL certs
         """
         self.conn = None
         self.authurl = authurl
         self.keystone = keystone
         self.hide_part_dir = hide_part_dir
         self.snet = snet
+        self.insecure = insecure
         # A cache to hold the information from the last listdir
         self._listdir_cache = ListDirCache(self)
         self._cwd = '/'
@@ -666,6 +668,7 @@ class ObjectStorageFS(object):
         self.conn = ProxyConnection(self._listdir_cache.memcache,
                                     user=username,
                                     key=api_key,
+                                    insecure=self.insecure,
                                     **kwargs
                                     )
         # force authentication

@@ -18,6 +18,9 @@
 # Authentication URL (required)
 # auth-url = (empty)
 
+# Allow to access servers without checking SSL certs
+# insecure = no
+
 # DEPRECATED: Number of workers to use (no effect)
 # workers = (empty)
 

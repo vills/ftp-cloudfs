@@ -86,6 +86,7 @@ class Main(object):
                                   'memcache': None,
                                   'max-cons-per-ip': '0',
                                   'auth-url': None,
+                                  'insecure': False,
                                   'service-net': None,
                                   'verbose': 'no',
                                   'syslog': 'no',
@@ -133,6 +134,12 @@ class Main(object):
                           dest="authurl",
                           default=self.config.get('ftpcloudfs', 'auth-url'),
                           help="Authentication URL (required)")
+
+        parser.add_option('--insecure',
+                          action="store_true",
+                          dest="insecure",
+                          default=self.config.get('ftpcloudfs', 'insecure'),
+                          help="Allow to access servers without checking SSL certs")
 
         memcache = self.config.get('ftpcloudfs', 'memcache')
         if memcache:
@@ -240,6 +247,7 @@ class Main(object):
 
         MyFTPHandler.banner = banner
         ObjectStorageFtpFS.authurl = self.options.authurl
+        ObjectStorageFtpFS.insecure = self.options.insecure
         ObjectStorageFtpFS.keystone = self.options.keystone
         ObjectStorageFtpFS.memcache_hosts = self.options.memcache
         ObjectStorageFtpFS.hide_part_dir = self.config.getboolean('ftpcloudfs', 'hide-part-dir')

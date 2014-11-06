@@ -14,6 +14,7 @@ class ObjectStorageFtpFS(ObjectStorageFS, AbstractedFS):
     """Object Storage File system emulation for a FTP server."""
     servicenet = False
     authurl = None
+    insecure = False
     keystone = None
     hide_part_dir = None
     snet = False
@@ -26,6 +27,7 @@ class ObjectStorageFtpFS(ObjectStorageFS, AbstractedFS):
                                  keystone=keystone or self.keystone,
                                  hide_part_dir=hide_part_dir or self.hide_part_dir,
                                  snet = self.snet,
+                                 insecure = self.insecure,
                                  )
 
     def init_abstracted_fs(self, root, cmd_channel):
