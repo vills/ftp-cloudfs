@@ -41,7 +41,7 @@ python-swiftclient 2.x uses Requests and it is currently incompatible with ftp-c
 Operating Systems
 =================
 
-fpt-cloudfs is developed and tested in Ubuntu and Debian Linux distributions but it should work on any
+ftp-cloudfs is developed and tested in Ubuntu and Debian Linux distributions but it should work on any
 Unix-like (including Mac OS X) as long as you install the requirements listed above.
 
 
