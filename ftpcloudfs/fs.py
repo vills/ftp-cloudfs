@@ -203,7 +203,8 @@ class ObjectStorageFD(object):
         """
         def copy_task(conn, container, name, part_name, part_base_name):
             # open a new connection
-            conn = ProxyConnection(None, preauthurl=conn.url, preauthtoken=conn.token)
+            url, token = conn.get_auth()
+            conn = ProxyConnection(None, preauthurl=url, preauthtoken=token)
             headers = { 'x-copy-from': quote("/%s/%s" % (container, name)) }
             logging.debug("copying first part %r/%r, %r" % (container, part_name, headers))
             try:
