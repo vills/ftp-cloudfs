@@ -12,7 +12,8 @@ class ChunkObject(object):
 
     def __init__(self, conn, container, name, content_type=None):
 
-        parsed, self.conn = http_connection(conn.url)
+        url, token = conn.get_auth()
+        parsed, self.conn = http_connection(url)
 
         logging.debug("ChunkObject: new connection open (%r, %r)" % (parsed, self.conn))
 
@@ -20,7 +21,7 @@ class ChunkObject(object):
                              quote(smart_str(container)),
                              quote(smart_str(name)),
                              )
-        headers = { 'X-Auth-Token': conn.token,
+        headers = { 'X-Auth-Token': token,
                     'Content-Type': content_type or 'application/octet-stream',
                     'Transfer-Encoding': 'chunked',
                     'Connection': 'close',
@@ -32,7 +33,7 @@ class ChunkObject(object):
         # we can't use the generator interface offered by requests to do a
         # chunked transfer encoded PUT, so we do this is to get control over the
         # "real" http connection and do the HTTP request ourselves
-        self.raw_conn = self.conn.request_session.get_adapter(conn.url).get_connection(conn.url)._get_conn()
+        self.raw_conn = self.conn.request_session.get_adapter(url).get_connection(url)._get_conn()
 
         self.raw_conn.putrequest('PUT', path, skip_accept_encoding=True)
         for key, value in headers.iteritems():
