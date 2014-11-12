@@ -10,9 +10,13 @@ from ftpcloudfs.utils import smart_str
 
 class ChunkObject(object):
 
-    def __init__(self, conn, container, name, content_type=None):
+    def __init__(self, conn, container, name, content_type=None, reuse_token = True):
 
-        url, token = conn.get_auth()
+        if reuse_token:
+            url = conn.url
+            token = conn.token
+        else:
+            url, token = conn.get_auth()
         parsed, self.conn = http_connection(url)
 
         logging.debug("ChunkObject: new connection open (%r, %r)" % (parsed, self.conn))
