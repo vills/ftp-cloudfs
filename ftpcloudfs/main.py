@@ -85,6 +85,7 @@ class Main(object):
                                   'workers': None,
                                   'memcache': None,
                                   'max-cons-per-ip': '0',
+                                  'permit-foreign-addresses': False,
                                   'auth-url': None,
                                   'insecure': False,
                                   'service-net': None,
@@ -276,6 +277,8 @@ class Main(object):
                 MyFTPHandler.passive_ports = range(passive_ports[0], passive_ports[1]+1)
             except (ValueError, TypeError):
                 sys.exit('Passive ports error: int:int expected')
+
+        MyFTPHandler.permit_foreign_addresses = self.config.getboolean('ftpcloudfs', 'permit-foreign-addresses')
 
         try:
             max_cons_per_ip = int(self.config.get('ftpcloudfs', 'max-cons-per-ip'))

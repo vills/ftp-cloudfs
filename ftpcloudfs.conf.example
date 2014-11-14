@@ -32,6 +32,11 @@
 # default is 0 (no limit)
 # max-cons-per-ip = 0
 
+# Allow data connection from a different IP than the control connection.
+# Useful in situations where the control connection is proxied. Enables 
+# site-to-site transfers, but also introduces a security risk.
+# permit-foreign-addresses = no
+
 # Large file support.
 # Specify a size in MB to split large files.
 # split-large-files = (empty)
