@@ -27,7 +27,7 @@ REQUIREMENTS
 ============
 
 - Python 2 >= 2.6
-- python-swiftclient >= 2.0.0 - https://github.com/openstack/python-swiftclient/
+- python-swiftclient >= 2.1.0 - https://github.com/openstack/python-swiftclient/
 - pyftpdlib >= 1.3.0 - http://code.google.com/p/pyftpdlib/
 - python-daemon >= 1.5.5 - http://pypi.python.org/pypi/python-daemon/
 - python-memcache >= 1.45 - http://www.tummy.com/Community/software/python-memcached/
