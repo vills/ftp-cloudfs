@@ -85,7 +85,7 @@ class Main(object):
                                   'workers': None,
                                   'memcache': None,
                                   'max-cons-per-ip': '0',
-                                  'permit-foreign-addresses': False,
+                                  'permit-foreign-addresses': 'no',
                                   'auth-url': None,
                                   'insecure': False,
                                   'service-net': None,
