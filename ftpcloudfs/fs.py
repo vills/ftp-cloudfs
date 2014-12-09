@@ -203,7 +203,8 @@ class ObjectStorageFD(object):
         """
         def copy_task(conn, container, name, part_name, part_base_name):
             # open a new connection
-            conn = ProxyConnection(None, preauthurl=conn.url, preauthtoken=conn.token)
+            url, token = conn.get_auth()
+            conn = ProxyConnection(None, preauthurl=url, preauthtoken=token)
             headers = { 'x-copy-from': quote("/%s/%s" % (container, name)) }
             logging.debug("copying first part %r/%r, %r" % (container, part_name, headers))
             try:
@@ -249,7 +250,7 @@ class ObjectStorageFD(object):
                     current_size = len(data)-offs
                 self.part_size += current_size
                 if not self.obj:
-                    self.obj = ChunkObject(self.conn, self.container, self.part_name, content_type=self.content_type)
+                    self.obj = ChunkObject(self.conn, self.container, self.part_name, content_type=self.content_type, reuse_token=False)
                 self.obj.send_chunk(data[offs:offs+current_size])
                 offs += current_size
                 if self.part_size == self.split_size:
