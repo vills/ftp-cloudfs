@@ -77,8 +77,27 @@ class Main(object):
         if self.config.get("ftpcloudfs", "service-net") is not None:
             logging.warning("service-net configuration token has been deprecated and has no effect (see ChangeLog)")
 
-    def parse_configuration(self, config_file=default_config_file):
+    def parse_configuration(self):
         """Parse the configuration file"""
+
+        # look for an alternative configuration file
+        alt_config_file = False
+        parser = OptionParser() # only for error reporting
+        config_file = default_config_file
+        for arg in sys.argv:
+            if arg == '--config':
+                try:
+                    alt_config_file = sys.argv[sys.argv.index(arg) + 1]
+                    config_file = alt_config_file
+                except IndexError:
+                    # the parser will report the error later on
+                    pass
+            elif arg.startswith('--config='):
+                _, alt_config_file = arg.split('=', 1)
+                if not alt_config_file:
+                    parser.error("--config option requires an argument")
+                config_file = alt_config_file
+
         config = RawConfigParser({'banner': default_banner,
                                   'port': default_port,
                                   'bind-address': default_address,
@@ -107,7 +126,11 @@ class Main(object):
                                   'keystone-endpoint-type': default_ks_endpoint_type,
                                   'rackspace-service-net' : 'no',
                                  })
-        config.read(default_config_file)
+
+        if not config.read(config_file) and alt_config_file:
+            # the default conf file is optional
+            parser.error("failed to read %s" % config_file)
+
         if not config.has_section('ftpcloudfs'):
             config.add_section('ftpcloudfs')
 
@@ -115,6 +138,7 @@ class Main(object):
 
     def parse_arguments(self):
         """Parse command line options"""
+
         parser = OptionParser(version="%prog " + version)
         parser.add_option('-p', '--port',
                           type="int",
@@ -225,6 +249,12 @@ class Main(object):
                           dest="endpoint_type",
                           default=self.config.get('ftpcloudfs', 'keystone-endpoint-type'),
                           help="Endpoint type to be used in auth 2.0 (default: %s)" % default_ks_endpoint_type)
+
+        parser.add_option('--config',
+                          type="str",
+                          dest="config",
+                          default=default_config_file,
+                          help="Use an alternative configuration file (default: %s)" % default_config_file)
 
         (options, _) = parser.parse_args()
 
