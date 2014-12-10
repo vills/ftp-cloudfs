@@ -213,7 +213,6 @@ class ObjectStorageFD(object):
                 logging.error("Failed to copy %s: %s" % (name, ex.http_reason))
                 sys.exit(1)
             # setup the manifest
-            #headers = { 'x-object-manifest': quote("%s/%s" % (container, part_base_name.decode("utf-8"))) }
             headers = { 'x-object-manifest': quote("%s/%s" % (container, part_base_name)) }
             logging.debug("creating manifest %r/%r, %r" % (container, name, headers))
             try:
