@@ -282,6 +282,7 @@ class ObjectStorageFD(object):
         self.closed = True
         self.conn.close()
 
+    @translate_objectstorage_error
     def read(self, size=65536):
         """
         Read data from the object.
@@ -307,6 +308,7 @@ class ObjectStorageFD(object):
         else:
             return buff
 
+    @translate_objectstorage_error
     def seek(self, offset, whence=None):
         """
         Seek in the object.

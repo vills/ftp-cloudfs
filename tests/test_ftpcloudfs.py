@@ -363,6 +363,18 @@ class FtpObjectStorageFSTest(unittest.TestCase):
         self.assertRaises(ftplib.error_perm, self.cnx.sendcmd, "MD5 /%s" % self.container)
         self.assertRaises(ftplib.error_perm, self.cnx.sendcmd, "MD5 /")
 
+    def test_retrieve_unexisting(self):
+        ''' retrieve unexisting file (issue #41) '''
+        store = StringIO.StringIO()
+        self.assertRaises(ftplib.error_temp, self.cnx.retrbinary, "RETR nonexistent.txt", store.write)
+        store.close()
+
+    def test_resume_unexisting(self):
+        ''' open unexisting file (issue #41) '''
+        store = StringIO.StringIO()
+        self.assertRaises(ftplib.error_perm, self.cnx.retrbinary, "RETR nonexistent.txt", store.write, rest=1000)
+        store.close()
+
     def tearDown(self):
         # Delete eveything from the container using the API
         self.cnx.close()
