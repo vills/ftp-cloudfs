@@ -485,7 +485,7 @@ class ObjectStorageFSTest(unittest.TestCase):
         ''' auto-split of large files '''
         size = 1024**2
         part_size = 64*1024
-        file_name = u"bigfile & \u263a.txt".encode("utf-8")
+        file_name = u"bigfile & \u263a.txt"
         fd = self.cnx.open(file_name, "wb")
         fd.split_size = part_size
         content = ''
@@ -493,8 +493,8 @@ class ObjectStorageFSTest(unittest.TestCase):
             content += chr(part)*4096
             fd.write(chr(part)*4096)
         fd.close()
-        self.assertEqual(self.cnx.listdir("."), [unicode(file_name, "utf-8"),
-                                                 unicode(file_name, "utf-8") + u".part",
+        self.assertEqual(self.cnx.listdir("."), [file_name,
+                                                 file_name + u".part",
                                                  ])
         self.assertEqual(self.cnx.getsize(file_name), size)
         self.cnx.remove(file_name)

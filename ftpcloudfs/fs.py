@@ -14,7 +14,7 @@ import stat
 import logging
 from urllib import unquote
 from errno import EPERM, ENOENT, EACCES, EIO, ENOTDIR, ENOTEMPTY
-from swiftclient.client import Connection, ClientException, quote, encode_utf8
+from swiftclient.client import Connection, ClientException, quote
 from chunkobject import ChunkObject
 from errors import IOSError
 import posixpath
@@ -187,7 +187,7 @@ class ObjectStorageFD(object):
 
     @property
     def part_base_name(self):
-        return "%s.part" % encode_utf8(self.name)
+        return "%s.part" % self.name
 
     @property
     def part_name(self):
@@ -213,6 +213,7 @@ class ObjectStorageFD(object):
                 logging.error("Failed to copy %s: %s" % (name, ex.http_reason))
                 sys.exit(1)
             # setup the manifest
+            #headers = { 'x-object-manifest': quote("%s/%s" % (container, part_base_name.decode("utf-8"))) }
             headers = { 'x-object-manifest': quote("%s/%s" % (container, part_base_name)) }
             logging.debug("creating manifest %r/%r, %r" % (container, name, headers))
             try:
