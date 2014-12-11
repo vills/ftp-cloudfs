@@ -1,3 +1,20 @@
+2014-12-11 Juan J. Martinez <juan@memset.com>
+
+ * 0.31
+ - New permit-foreign-addresses configuration token to expose that
+   functionality from pyftpdlib. This is useful when the control
+   connection is proxified. Check the example configuration file for
+   more information. Thanks to Koert van der Veer for the patch.
+ - swiftclient requirement updated to be >= 2.1.0.
+ - Tokens won't be reused in large files support to avoid broken
+   uploads because of expired tokens.
+ - Fixed a bug in large files support with UTF-8 encoded filenames.
+ - Added error translation in two methods of the file emulation. Accessing
+   an unexistent file was resulting in an unhandled exception instead of
+   sending an FTP error to the client. Thanks to John Leach for the report.
+ - A --config command line option has been added to specify an alternative
+   configuration option that will be used instead of the default one in /etc.
+
 2014-10-06 Juan J. Martinez <juan@memset.com>
 
  * 0.30
