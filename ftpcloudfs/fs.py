@@ -477,12 +477,12 @@ class ListDirCache(object):
 
                 # If a manifest and it's segment directory have the
                 # same name then we have to choose which we want to
-                # show, we can't show both. So we shoose to keep the
+                # show, we can't show both. So we choose to keep the
                 # manifest if hide_part_dir is enabled.
                 #
                 # We can do this here because swift returns objects in
                 # alphabetical order so the manifest will come before
-                # it's segments.
+                # its segments.
                 if self.cffs.hide_part_dir and obj['name'] in manifests:
                     logging.debug("Not adding subdir %s which would overwrite manifest" % obj['name'])
                     continue
@@ -507,8 +507,8 @@ class ListDirCache(object):
                 manifest_container, manifest_obj = parse_fspath('/' + manifests[manifest])
                 if manifest_container == container:
                     for cache_obj in cache.copy():
-                        # hide any manifest segments, but not the manifest itself, if it 
-                        # happens to share a prefix with it's segments.
+                        # hide any manifest segments, but not the manifest itself, if it
+                        # happens to share a prefix with its segments.
                         if unicode(unquote(cache_obj), "utf-8") != manifest and \
                            unicode(unquote(os.path.join(path, cache_obj)), "utf-8").startswith(manifest_obj):
                             logging.debug("hiding manifest %r segment %r" % (manifest, cache_obj))
