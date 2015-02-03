@@ -467,13 +467,25 @@ class ListDirCache(object):
         logging.debug("total number of objects %s:" % len(objects))
 
         if self.cffs.hide_part_dir:
-            manifests = []
+            manifests = {}
 
         for obj in objects:
             # {u'bytes': 4820,  u'content_type': '...',  u'hash': u'...',  u'last_modified': u'2008-11-05T00:56:00.406565',  u'name': u'new_object'},
             if 'subdir' in obj:
                 # {u'subdir': 'dirname'}
                 obj['name'] = obj['subdir'].rstrip("/")
+
+                # If a manifest and it's segment directory have the
+                # same name then we have to choose which we want to
+                # show, we can't show both. So we choose to keep the
+                # manifest if hide_part_dir is enabled.
+                #
+                # We can do this here because swift returns objects in
+                # alphabetical order so the manifest will come before
+                # its segments.
+                if self.cffs.hide_part_dir and obj['name'] in manifests:
+                    logging.debug("Not adding subdir %s which would overwrite manifest" % obj['name'])
+                    continue
             elif obj.get('bytes') == 0 and obj.get('hash') and obj.get('content_type') != 'application/directory':
                 # if it's a 0 byte file, has a hash and is not a directory, we make an extra call
                 # to check if it's a manifest file and retrieve the real size / hash
@@ -481,7 +493,7 @@ class ListDirCache(object):
                 logging.debug("possible manifest file: %r" % manifest_obj)
                 if 'x-object-manifest' in manifest_obj:
                     if self.cffs.hide_part_dir:
-                        manifests.append(unicode(unquote(manifest_obj['x-object-manifest']), "utf-8"))
+                        manifests[obj['name']] = unicode(unquote(manifest_obj['x-object-manifest']), "utf-8")
                     logging.debug("manifest found: %s" % manifest_obj['x-object-manifest'])
                     obj['hash'] = manifest_obj['etag']
                     obj['bytes'] = int(manifest_obj['content-length'])
@@ -492,11 +504,14 @@ class ListDirCache(object):
 
         if self.cffs.hide_part_dir:
             for manifest in manifests:
-                manifest_container, manifest_obj = parse_fspath('/' + manifest)
+                manifest_container, manifest_obj = parse_fspath('/' + manifests[manifest])
                 if manifest_container == container:
                     for cache_obj in cache.copy():
-                        if manifest_obj == unicode(unquote(os.path.join(path, cache_obj)), "utf-8"):
-                            logging.debug("hidding part dir %r" % manifest_obj)
+                        # hide any manifest segments, but not the manifest itself, if it
+                        # happens to share a prefix with its segments.
+                        if unicode(unquote(cache_obj), "utf-8") != manifest and \
+                           unicode(unquote(os.path.join(path, cache_obj)), "utf-8").startswith(manifest_obj):
+                            logging.debug("hiding manifest %r segment %r" % (manifest, cache_obj))
                             del cache[cache_obj]
 
     def listdir_root(self, cache):

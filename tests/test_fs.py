@@ -371,6 +371,18 @@ class ObjectStorageFSTest(unittest.TestCase):
         self.assertEqual(self.cnx.getsize("testfile"), 4096)
         self.cnx.remove("testfile")
 
+    def test_listdir_manifest_same_name_as_segment_dir(self):
+        ''' list directory including a manifest file '''
+        content_string = "0" * 1024
+        for i in range(1, 5):
+            self.create_file("testfile/%d" % i, content_string)
+        self.conn.put_object(self.container, "testfile", contents=None, headers={ "x-object-manifest": '%s/testfile' % self.container })
+        self.assertEqual(self.cnx.listdir("."), ["testfile"])
+        self.assertEqual(self.cnx.getsize("testfile"), 0)
+        for i in range(1, 5):
+            self.cnx.remove("testfile/%d" % i)
+        self.cnx.remove("testfile") # magically becomes a file when the segments are deleted
+
     def test_seek_set_resume(self):
         ''' seek/resume functionality (seek_set) '''
         content_string = "This is a chunk of data"*1024
@@ -583,6 +595,31 @@ class ObjectStorageFSTest(unittest.TestCase):
       self.assertEqual(self.cnx.listdir("."), [unicode(file_name, "utf-8"),])
       self.cnx.remove(file_name)
       self.cnx.hide_part_dir = False
+
+    def test_large_file_listing_hidden_parts_when_same_name_as_manifest(self):
+        content_string = "0" * 1024
+        for i in range(1, 5):
+            self.create_file("testfile/%d" % i, content_string)
+        self.conn.put_object(self.container, "testfile", contents=None, headers={ "x-object-manifest": '%s/testfile' % self.container })
+        self.cnx.hide_part_dir = True
+        self.assertEqual(self.cnx.listdir("."), ["testfile"])
+        self.assertEqual(self.cnx.getsize("testfile"), 4096)
+        self.cnx.remove("testfile")
+        self.cnx.hide_part_dir = False
+        self.assertEqual(self.cnx.listdir("."), [])
+
+    def test_large_file_listing_hidden_parts_with_non_dir_segments(self):
+        content_string = "0" * 1024
+        for i in range(1, 5):
+            self.create_file("testfile%d" % i, content_string)
+        self.conn.put_object(self.container, "testfile", contents=None, headers={ "x-object-manifest": '%s/testfile' % self.container })
+        self.cnx.hide_part_dir = True
+        self.assertEqual(self.cnx.listdir("."), ["testfile"])
+        self.assertEqual(self.cnx.getsize("testfile"), 4096)
+        self.cnx.remove("testfile")
+        for i in range(1, 5):
+            self.cnx.remove("testfile%d" % i)
+        self.cnx.hide_part_dir = False
 
     def test_large_file_listing_subdir_hidden_parts(self):
       content_string = "x" * 6 * 1024 * 1024
