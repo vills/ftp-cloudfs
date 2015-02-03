@@ -225,3 +225,5 @@ Contributors
 - Konstantin vz'One Enchant <sirkonst@gmail.com>
 - Maxim Mitroshin <mitroshin@selectel.org>
 - Sokolov Ilya <falconmain@gmail.com>
+- John Leach <john@johnleach.co.uk>
+
