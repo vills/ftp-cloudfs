@@ -226,4 +226,5 @@ Contributors
 - Maxim Mitroshin <mitroshin@selectel.org>
 - Sokolov Ilya <falconmain@gmail.com>
 - John Leach <john@johnleach.co.uk>
+- Vil Surkin <vills@webzilla.com>
 
