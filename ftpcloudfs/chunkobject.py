@@ -11,43 +11,49 @@ from ftpcloudfs.utils import smart_str
 class ChunkObject(object):
 
     def __init__(self, conn, container, name, content_type=None, reuse_token = True):
+        self.raw_conn = None
 
         if reuse_token:
-            url = conn.url
+            self.url = conn.url
             token = conn.token
         else:
-            url, token = conn.get_auth()
-        parsed, self.conn = http_connection(url)
+            self.url, token = conn.get_auth()
+        self.parsed, self.conn = http_connection(self.url)
 
-        logging.debug("ChunkObject: new connection open (%r, %r)" % (parsed, self.conn))
-
-        path = '%s/%s/%s' % (parsed.path.rstrip('/'),
-                             quote(smart_str(container)),
-                             quote(smart_str(name)),
-                             )
-        headers = { 'X-Auth-Token': token,
-                    'Content-Type': content_type or 'application/octet-stream',
-                    'Transfer-Encoding': 'chunked',
-                    'Connection': 'close',
-                    # User-Agent ?
-                    }
+        self.path = '%s/%s/%s' % (self.parsed.path.rstrip('/'),
+                                  quote(smart_str(container)),
+                                  quote(smart_str(name)),
+                                  )
+        self.headers = { 'X-Auth-Token': token,
+                         'Content-Type': content_type or 'application/octet-stream',
+                         'Transfer-Encoding': 'chunked',
+                         'Connection': 'close',
+                         # User-Agent ?
+                         }
         if conn.real_ip:
-            headers['X-Forwarded-For'] = conn.real_ip
+            self.headers['X-Forwarded-For'] = conn.real_ip
+
+        logging.debug("ChunkedObject: path=%r, headers=%r" % (self.path, self.headers))
+
+        self.already_sent = 0
+
+    def _open_connection(self):
+        logging.debug("ChunkObject: new connection open (%r, %r)" % (self.parsed, self.conn))
 
         # we can't use the generator interface offered by requests to do a
         # chunked transfer encoded PUT, so we do this is to get control over the
         # "real" http connection and do the HTTP request ourselves
-        self.raw_conn = self.conn.request_session.get_adapter(url).get_connection(url)._get_conn()
+        self.raw_conn = self.conn.request_session.get_adapter(self.url).get_connection(self.url)._get_conn()
 
-        self.raw_conn.putrequest('PUT', path, skip_accept_encoding=True)
-        for key, value in headers.iteritems():
+        self.raw_conn.putrequest('PUT', self.path, skip_accept_encoding=True)
+        for key, value in self.headers.iteritems():
             self.raw_conn.putheader(key, value)
         self.raw_conn.endheaders()
-        logging.debug("ChunkedObject: path=%r, headers=%r" % (path, headers))
-
-        self.already_sent = 0
 
     def send_chunk(self, chunk):
+        if self.raw_conn is None:
+            self._open_connection()
+
         logging.debug("ChunkObject: sending %s bytes" % len(chunk))
         try:
             self.raw_conn.send("%X\r\n" % len(chunk))
