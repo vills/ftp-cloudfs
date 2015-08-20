@@ -1,3 +1,9 @@
+2015-08-20 Juan J. Martinez <juan@memset.com>
+
+ * 0.34
+ - Fixed a bug introduced in 0.33 that was preventing 0 byte files to be
+   created. Thanks to Vil for the patch.
+
 2015-07-08 Juan J. Martinez <juan@memset.com>
 
  * 0.33
