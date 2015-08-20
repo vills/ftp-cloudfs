@@ -66,6 +66,9 @@ class ChunkObject(object):
             logging.debug("ChunkObject: already sent %s bytes" % self.already_sent)
 
     def finish_chunk(self):
+        if self.raw_conn is None:
+            self._open_connection()
+
         logging.debug("ChunkObject: finish_chunk")
         try:
             self.raw_conn.send("0\r\n\r\n")
