@@ -189,7 +189,7 @@ exceptions contain licensing information in them.
 
 .. _`MIT`: http://en.wikipedia.org/wiki/MIT_License
 
-  Copyright (C) 2009-2015 Chmouel Boudjnah <chmouel@chmouel.com>
+  Copyright (C) 2009-2016 Chmouel Boudjnah <chmouel@chmouel.com>
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
