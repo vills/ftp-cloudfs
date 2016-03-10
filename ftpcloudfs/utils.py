@@ -28,6 +28,13 @@ class PidFile(object):
             self.pidfile.close()
             os.remove(self.path)
 
+# compatibility later for swifclient < 2.7.0
+def smart_unicode(s, encoding='utf-8'):
+    if isinstance(s, unicode):
+        return s
+    else:
+        return unicode(s, encoding)
+
 #from django.utils
 def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
     if strings_only and isinstance(s, (types.NoneType, int)):

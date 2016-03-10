@@ -18,7 +18,7 @@ from swiftclient.client import Connection, ClientException, quote
 from chunkobject import ChunkObject
 from errors import IOSError
 import posixpath
-from utils import smart_str
+from utils import smart_str, smart_unicode
 from functools import wraps
 import memcache
 import multiprocessing
@@ -493,7 +493,7 @@ class ListDirCache(object):
                 logging.debug("possible manifest file: %r" % manifest_obj)
                 if 'x-object-manifest' in manifest_obj:
                     if self.cffs.hide_part_dir:
-                        manifests[obj['name']] = unicode(unquote(manifest_obj['x-object-manifest']), "utf-8")
+                        manifests[obj['name']] = smart_unicode(unquote(manifest_obj['x-object-manifest']), "utf-8")
                     logging.debug("manifest found: %s" % manifest_obj['x-object-manifest'])
                     obj['hash'] = manifest_obj['etag']
                     obj['bytes'] = int(manifest_obj['content-length'])
@@ -861,7 +861,7 @@ class ObjectStorageFS(object):
 
         meta = self.conn.head_object(container, name)
         if 'x-object-manifest' in meta:
-            self._remove_path_folder_files(u'/' + unicode(unquote(meta['x-object-manifest']), "utf-8"))
+            self._remove_path_folder_files(u'/' + smart_unicode(unquote(meta['x-object-manifest']), "utf-8"))
         self.conn.delete_object(container, name)
         self._listdir_cache.flush(posixpath.dirname(path))
         return not name
