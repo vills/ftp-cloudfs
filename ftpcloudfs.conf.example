@@ -6,8 +6,8 @@
 
 [ftpcloudfs]
 
-# FTP banner (%v version, %f ftp handler version)
-# banner = ftp-cloudfs %v using pyftpdlib %f ready.
+# FTP banner (%v version, %f ftp handler version, %s swift client version)
+# banner = ftp-cloudfs %v using pyftpdlib %f (switfclient %s) ready.
 
 # Port to bind.
 # port = 2021

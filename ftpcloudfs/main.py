@@ -11,6 +11,7 @@ from logging.handlers import SysLogHandler
 
 from optparse import OptionParser
 import pyftpdlib.servers
+import swiftclient
 
 from server import ObjectStorageFtpFS
 from fs import ObjectStorageFD
@@ -275,6 +276,7 @@ class Main(object):
         """Run the main ftp server loop."""
         banner = self.config.get('ftpcloudfs', 'banner').replace('%v', version)
         banner = banner.replace('%f', pyftpdlib.__ver__)
+        banner = banner.replace('%s', swiftclient.version.version_string)
 
         MyFTPHandler.banner = banner
         ObjectStorageFtpFS.authurl = self.options.authurl
