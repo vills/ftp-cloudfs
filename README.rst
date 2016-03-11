@@ -3,7 +3,7 @@ FTP Interface to OpenStack Object Storage (Swift)
 =================================================
 
 :Homepage:  https://pypi.python.org/pypi/ftp-cloudfs/
-:Credits:   Copyright 2009--2015 Chmouel Boudjnah <chmouel@chmouel.com>
+:Credits:   Copyright 2009--2016 Chmouel Boudjnah <chmouel@chmouel.com>
 :Licence:   MIT
 
 
