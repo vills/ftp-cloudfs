@@ -1,4 +1,4 @@
-version = '0.34'
+version = '0.35'
 
 default_banner = "ftp-cloudfs %v using pyftpdlib %f (swiftclient %s) ready."
 default_config_file = '/etc/ftpcloudfs.conf'
