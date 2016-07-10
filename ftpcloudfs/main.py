@@ -5,7 +5,7 @@ import sys
 import os
 import signal
 import socket
-from ConfigParser import RawConfigParser
+from ConfigParser import RawConfigParser, ParsingError
 import logging
 from logging.handlers import SysLogHandler
 
@@ -128,9 +128,12 @@ class Main(object):
                                   'rackspace-service-net' : 'no',
                                  })
 
-        if not config.read(config_file) and alt_config_file:
-            # the default conf file is optional
-            parser.error("failed to read %s" % config_file)
+        try:
+            if not config.read(config_file) and alt_config_file:
+                # the default conf file is optional
+                parser.error("failed to read %s" % config_file)
+        except ParsingError as ex:
+            parser.error("failed to read %s: %s" % (config_file, ex.message))
 
         if not config.has_section('ftpcloudfs'):
             config.add_section('ftpcloudfs')
