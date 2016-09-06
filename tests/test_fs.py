@@ -646,6 +646,25 @@ class ObjectStorageFSTest(unittest.TestCase):
       #We realy delete hidden .part dir
       self.assertEqual(self.cnx.listdir("."), [])
 
+    def test_large_file_rename_collision(self):
+        content_string = "x" * 6 * 1024 * 1024
+        content_string_2 = "y" * 6 * 1024 * 1024
+        self.create_file_with_split_limit("testfile.txt", content_string, 5)
+        self.assertEqual(len(self.read_file('testfile.txt')), len(content_string))
+        self.cnx.rename("testfile.txt", "testfile2.txt")
+        # upload the file again
+        self.create_file_with_split_limit("testfile.txt", content_string_2, 5)
+        # check the file is there
+        self.assertEqual(self.read_file('testfile.txt'), content_string_2)
+        self.cnx.remove("testfile.txt_01.part/000000")
+        self.cnx.remove("testfile.txt_01.part/000001")
+        self.cnx.remove("testfile.txt")
+        # check we didn't change the old file
+        self.assertEqual(self.read_file('testfile2.txt'), content_string)
+        self.cnx.remove("testfile.txt.part/000000")
+        self.cnx.remove("testfile.txt.part/000001")
+        self.cnx.remove("testfile2.txt")
+
     def tearDown(self):
         # Delete eveything from the container using the API
         _, fails = self.conn.get_container(self.container)

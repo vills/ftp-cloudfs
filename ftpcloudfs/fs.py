@@ -164,6 +164,7 @@ class ObjectStorageFD(object):
         self.total_size = 0
         self.part_size = 0
         self.part = 0
+        self.part_collision = 0
         self.headers = dict()
         self.content_type = mimetypes.guess_type(self.name)[0]
         self.pending_copy_task = None
@@ -187,7 +188,10 @@ class ObjectStorageFD(object):
 
     @property
     def part_base_name(self):
-        return "%s.part" % self.name
+        base_name = self.name
+        if self.part_collision:
+            base_name = "%s_%02d" % (base_name, self.part_collision)
+        return "%s.part" % base_name
 
     @property
     def part_name(self):
@@ -232,6 +236,25 @@ class ObjectStorageFD(object):
                                                          )
         self.pending_copy_task.start()
 
+    def _find_collisions(self):
+        """Check if there are collisions with a renamed multi-part file"""
+        while True:
+            try:
+                self.conn.head_object(self.container, self.name)
+            except ClientException:
+                # the manifest doesn't exist, check for parts
+                try:
+                    self.conn.head_object(self.container, self.part_name)
+                except ClientException:
+                    # parts not found, no collision
+                    break
+                else:
+                    # collision found
+                    self.part_collision += 1
+            else:
+                # manifest exists so this is an overwrite of an existing multi-part object
+                break
+
     @translate_objectstorage_error
     def write(self, data):
         """Write data to the object."""
@@ -240,6 +263,8 @@ class ObjectStorageFD(object):
 
         # large file support
         if self.split_size:
+            # check for collisions
+            self._find_collisions()
             # data can be of any size, so we need to split it in split_size chunks
             offs = 0
             while offs < len(data):
