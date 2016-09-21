@@ -158,20 +158,18 @@ class ObjectStorageFD(object):
     def _find_collisions(self):
         """Check if there are collisions with a renamed multi-part file"""
         while True:
+            path_name = '/'.join(self.part_name.split('/')[:-1])
             try:
-                self.conn.head_object(self.container, self.name)
+                # check for existing part
+                self.conn.head_object(self.container, self.part_name)
+                logging.debug(
+                    '_find_collisions: found parts in "%s"' % path_name)
+                # collision found, increasing part number
+                self.part_collision += 1
             except ClientException:
-                # the manifest doesn't exist, check for parts
-                try:
-                    self.conn.head_object(self.container, self.part_name)
-                except ClientException:
-                    # parts not found, no collision
-                    break
-                else:
-                    # collision found
-                    self.part_collision += 1
-            else:
-                # manifest exists so this is an overwrite of an existing multi-part object
+                # parts not found in that iteration, no collision anymore
+                logging.debug(
+                    '_find_collisions: will use "%s" for parts' % path_name)
                 break
 
     def __init__(self, connection, container, obj, mode):
@@ -203,11 +201,6 @@ class ObjectStorageFD(object):
             logging.debug("read fd %r" % self.name)
         else: # write
             logging.debug("write fd %r" % self.name)
-
-            # check for collisions in case this is a multi-part file
-            if self.split_size:
-                self._find_collisions()
-
             self.obj = ChunkObject(self.conn, self.container, self.name, content_type=self.content_type)
 
     @property
@@ -288,6 +281,7 @@ class ObjectStorageFD(object):
                     self.obj = None
                     # make it the first part
                     if self.part == 0:
+                        self._find_collisions()
                         self._start_copy_task()
                     self.part_size = 0
                     self.part += 1
