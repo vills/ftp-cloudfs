@@ -162,15 +162,16 @@ class ObjectStorageFD(object):
             try:
                 # check for existing part
                 self.conn.head_object(self.container, self.part_name)
-                logging.debug(
-                    '_find_collisions: found parts in "%s"' % path_name)
-                # collision found, increasing part number
-                self.part_collision += 1
             except ClientException:
                 # parts not found in that iteration, no collision anymore
                 logging.debug(
                     '_find_collisions: will use "%s" for parts' % path_name)
                 break
+            else:
+                logging.debug(
+                    '_find_collisions: found parts in "%s"' % path_name)
+                # collision found, increasing part number
+                self.part_collision += 1
 
     def __init__(self, connection, container, obj, mode):
         self.conn = connection
