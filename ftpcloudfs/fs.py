@@ -263,8 +263,9 @@ class ObjectStorageFD(object):
 
         # large file support
         if self.split_size:
-            # check for collisions
-            self._find_collisions()
+            # if this is a multi-part file, check for collisions
+            if len(data) > self.split_size:
+                self._find_collisions()
             # data can be of any size, so we need to split it in split_size chunks
             offs = 0
             while offs < len(data):
