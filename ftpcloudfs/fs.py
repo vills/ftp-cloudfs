@@ -155,6 +155,25 @@ class ObjectStorageFD(object):
 
     split_size = 0
 
+    def _find_collisions(self):
+        """Check if there are collisions with a renamed multi-part file"""
+        while True:
+            try:
+                self.conn.head_object(self.container, self.name)
+            except ClientException:
+                # the manifest doesn't exist, check for parts
+                try:
+                    self.conn.head_object(self.container, self.part_name)
+                except ClientException:
+                    # parts not found, no collision
+                    break
+                else:
+                    # collision found
+                    self.part_collision += 1
+            else:
+                # manifest exists so this is an overwrite of an existing multi-part object
+                break
+
     def __init__(self, connection, container, obj, mode):
         self.conn = connection
         self.container = container
@@ -184,6 +203,11 @@ class ObjectStorageFD(object):
             logging.debug("read fd %r" % self.name)
         else: # write
             logging.debug("write fd %r" % self.name)
+
+            # check for collisions in case this is a multi-part file
+            if self.split_size:
+                self._find_collisions()
+
             self.obj = ChunkObject(self.conn, self.container, self.name, content_type=self.content_type)
 
     @property
@@ -236,25 +260,6 @@ class ObjectStorageFD(object):
                                                          )
         self.pending_copy_task.start()
 
-    def _find_collisions(self):
-        """Check if there are collisions with a renamed multi-part file"""
-        while True:
-            try:
-                self.conn.head_object(self.container, self.name)
-            except ClientException:
-                # the manifest doesn't exist, check for parts
-                try:
-                    self.conn.head_object(self.container, self.part_name)
-                except ClientException:
-                    # parts not found, no collision
-                    break
-                else:
-                    # collision found
-                    self.part_collision += 1
-            else:
-                # manifest exists so this is an overwrite of an existing multi-part object
-                break
-
     @translate_objectstorage_error
     def write(self, data):
         """Write data to the object."""
@@ -263,9 +268,6 @@ class ObjectStorageFD(object):
 
         # large file support
         if self.split_size:
-            # if this is a multi-part file, check for collisions
-            if len(data) > self.split_size:
-                self._find_collisions()
             # data can be of any size, so we need to split it in split_size chunks
             offs = 0
             while offs < len(data):
